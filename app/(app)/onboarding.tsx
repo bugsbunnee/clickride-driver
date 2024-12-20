@@ -1,50 +1,37 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useState } from 'react';
+import Animated from 'react-native-reanimated';
+import _ from 'lodash';
 
 import { StyleSheet, View, TouchableOpacity, useWindowDimensions } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { router } from 'expo-router';
-
-import * as yup from 'yup';
+import { interpolateColor, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 import { colors, icons, styles as defaultStyles } from '@/constants'
-import { Form, FormField, SubmitButton } from '@/components/forms';
 import { Image, Text } from '@/components/ui';
-import { useAppDispatch } from '@/store/hooks';
-import { setUser } from '@/store/auth/slice';
 
-interface FormValues {
-    email: string;
-    password: string;
-}
+import PersonalInformationForm from '@/components/onboarding/PersonalInformationForm';
 
-const authSchema = yup.object<FormValues>().shape({
-	email: yup.string().email().required().label('Email Address'),
-	password: yup.string().required().label('Password'),
-});
-
-const SignInPage: React.FC = () => {
+const OnboardingPage: React.FC = () => {
+    const focusValue = useSharedValue<number>(1);
+    
     const { height } = useWindowDimensions();
     const { top } = useSafeAreaInsets();
+    
+    const stepStyle = useAnimatedStyle(() => ({
+        backgroundColor: interpolateColor(focusValue.value, [1, 4], [colors.light.dewDark, colors.light.primary, colors.light.dewDark, colors.light.primary])
+    }));
 
-    const dispatch = useAppDispatch();
-
-    const handleSubmit = useCallback((auth: FormValues) => {
-        dispatch(setUser({ name: 'Chuks', email: auth.email }));
-        router.push('/onboarding');
-    }, [dispatch]);
-
-    const initialValues: FormValues = useMemo(() => {
-        return {
-            email: '',
-            password: '',
-        };
+    const handleIncrementStep = useCallback(() => {
+        const timing = withTiming(focusValue.get() + 1, { duration: 500 });
+        focusValue.set(timing);
     }, []);
 
     return (
         <View style={styles.container}>
-            <KeyboardAwareScrollView bounces={false}>
+            <KeyboardAwareScrollView>
                 <TouchableOpacity style={[styles.navigation, { top }]} onPress={() => router.back()}>
                     <MaterialCommunityIcons 
                         name='arrow-left' 
@@ -55,42 +42,29 @@ const SignInPage: React.FC = () => {
 
                 <View style={[styles.imageContainer, { height: height * 0.5 }]}>
                     <Image
-                        src={require('@/assets/images/sign-in.png')}
+                        src={require('@/assets/images/sign-up.png')}
                         style={styles.image}
                     />
                 </View>
-
+                
                 <View style={styles.content}>
                     <View style={styles.form}>
                         <View style={styles.titleContainer}>
-                            <Text style={styles.title}>Login</Text>
+                            <View style={styles.steps}>
+                                {_.range(1, 5).map((step) => (
+                                    <Animated.View 
+                                        key={step} 
+                                        style={[styles.step, stepStyle]} 
+                                    />
+                                ))}
+                            </View>
+                            <Text style={styles.title}>Personal Information and Vehicle Details</Text>
+                            <Text style={styles.description}>Only your first name are visible to clients during bookings</Text>
                         </View>
 
-                        <Form initialValues={initialValues} onSubmit={handleSubmit} validationSchema={authSchema}>
-                            <FormField 
-                                autoCapitalize="none" 
-                                icon='envelope' 
-                                name="email" 
-                                label='Email' 
-                                placeholder="Enter email address"
-                                keyboardType='email-address'
-                            />
-
-                            <FormField 
-                                icon='lock' 
-                                name="password" 
-                                label='Password' 
-                                placeholder="Enter password"
-                                secureTextEntry
-                            />
-                            
-                            <View style={styles.buttonContainer}>
-                                <SubmitButton label="Sign in" />
-                            </View>
-                        </Form>
+                        <PersonalInformationForm onFinishStep={handleIncrementStep} />
                     </View>
                 </View>
-                
             </KeyboardAwareScrollView>
         </View>
     );
@@ -99,7 +73,16 @@ const SignInPage: React.FC = () => {
 const styles = StyleSheet.create({
     buttonContainer: { marginTop: 14 },
     container: { flex: 1, backgroundColor: colors.light.white },
-    content: { flex: 1, paddingHorizontal: 31 },
+    content: { flex: 1, paddingHorizontal: 31, marginBottom: 50 },
+    description: { 
+        textAlign: 'center', 
+        fontSize: 10, 
+        lineHeight: 15,
+        color: colors.light.graySemi,
+        fontFamily: defaultStyles.jakartaRegular.fontFamily,
+        marginTop: 4,
+        maxWidth: '80%'
+    },
     image: {
       height: '100%',
       width: '100%',
@@ -111,10 +94,9 @@ const styles = StyleSheet.create({
         paddingHorizontal: 23,
         paddingVertical: 20,
         borderRadius: 20,
-        zIndex: 10000000000,
+        zIndex: 1000000,
         elevation: 4,
-        flex: 1,
-        marginTop: '-50%'
+        marginTop: '-75%'
     },
     imageContainer: { 
         overflow: 'hidden', 
@@ -133,10 +115,22 @@ const styles = StyleSheet.create({
         zIndex: 1000,
         left: 23
     },
+    step: {
+        width: 22,
+        height: 2,
+        borderRadius: 5,
+    },
+    steps: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 6,
+        marginBottom: 10
+    },
     title: { 
         textAlign: 'center', 
-        fontSize: 20, 
-        lineHeight: 25,
+        fontSize: 18, 
+        lineHeight: 22,
         color: colors.light.dark,
         fontFamily: defaultStyles.jakartaBold.fontFamily,
     },
@@ -145,7 +139,9 @@ const styles = StyleSheet.create({
         borderBottomColor: colors.light.dew,
         paddingBottom: 5,
         marginBottom: 14,
+        justifyContent: 'center',
+        alignItems: 'center'
     },
 });
 
-export default SignInPage;
+export default OnboardingPage;

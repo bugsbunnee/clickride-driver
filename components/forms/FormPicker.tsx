@@ -14,7 +14,6 @@ const AppFormPicker: React.FC<Props> = ({
   items,
   name,
   label,
-  numberOfColumns,
   PickerItemComponent,
   placeholder,
   width,
@@ -26,7 +25,6 @@ const AppFormPicker: React.FC<Props> = ({
       <Picker
         label={label}
         items={items}
-        numberOfColumns={numberOfColumns}
         onSelectItem={(item) => setFieldValue(name, item)}
         PickerItemComponent={PickerItemComponent}
         placeholder={placeholder}

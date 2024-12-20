@@ -11,7 +11,8 @@ const AppLayout = () => {
     }
 
     return ( 
-        <Stack initialRouteName={location.granted ? "on-ride" : "location"} screenOptions={{ animation: 'fade_from_bottom', headerShown: false }}>
+        <Stack initialRouteName={location.granted ? "onboarding" : "location"} screenOptions={{ animation: 'fade_from_bottom', headerShown: false }}>
+            <Stack.Screen name="onboarding" />
             <Stack.Screen name="location" />
             <Stack.Screen name="incoming-ride" />
             <Stack.Screen name="on-ride" />

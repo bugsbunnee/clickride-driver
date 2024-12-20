@@ -8,8 +8,10 @@ import LocationSwitch from "@/components/maps/LocationSwitch";
 
 import { Button, Text } from "@/components/ui";
 import { colors, icons, styles as defaultStyles } from "@/constants";
+import useLocation from "@/hooks/useLocation";
 
 const LocationPage = () => {
+    const { granted } = useLocation();
     const { width } = useWindowDimensions();
     const { top: paddingTop, bottom: paddingBottom } = useSafeAreaInsets();
 
@@ -22,7 +24,7 @@ const LocationPage = () => {
                 blurRadius={1}
             >
                 <View style={styles.header}>
-                    <TouchableOpacity style={styles.navigation}>
+                    <TouchableOpacity style={styles.navigation} onPress={() => router.push('/')}>
                         <AntDesign
                             name="arrowleft"
                             size={icons.SIZES.SMALL} 
@@ -50,6 +52,7 @@ const LocationPage = () => {
                 </View>
 
                 <Button 
+                    disabled={!granted}
                     label="Continue" 
                     onPress={() => router.push('/incoming-ride')} 
                 />

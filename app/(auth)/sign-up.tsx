@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 
 import { isValidPhoneNumber } from 'libphonenumber-js';
 import { StyleSheet, View, TouchableOpacity, useWindowDimensions } from 'react-native';
@@ -41,7 +41,7 @@ const registrationSchema = yup.object<FormValues>().shape({
     }),
     city: yup.string().required().label('City'),
     category: yup.object().required().label('Category'),
-    consent: yup.boolean().oneOf([true], 'Terms and conditions must be accepted').required().label('Consent')
+    consent: yup.bool().oneOf([true], 'Terms and conditions must be accepted').required().label('Consent')
 });
 
 const SignUpPage: React.FC = () => {
@@ -58,9 +58,9 @@ const SignUpPage: React.FC = () => {
         };
     }, []);
 
-    const handleSubmit = (auth: FormValues) => {
+    const handleSubmit = useCallback((auth: FormValues) => {
         console.log(auth);
-    };
+    }, []);
 
     return (
         <View style={styles.container}>
@@ -80,65 +80,68 @@ const SignUpPage: React.FC = () => {
                     />
                 </View>
                 
-                <View style={styles.form}>
-                    <View style={styles.titleContainer}>
-                        <Text style={styles.title}>Sign up</Text>
-                    </View>
-
-                    <Form initialValues={initialValues} onSubmit={handleSubmit} validationSchema={registrationSchema}>
-                        <FormField 
-                            autoCapitalize="none" 
-                            icon='envelope' 
-                            name="email" 
-                            label='Email' 
-                            placeholder="Enter email address"
-                            keyboardType='email-address'
-                        />
-
-                        <FormField 
-                            icon='phone' 
-                            name="phoneNumber" 
-                            label='Phone' 
-                            placeholder="+234 999 999 9999"
-                        />
-                        
-                        <FormField 
-                            icon='location-pin' 
-                            name="city" 
-                            label='City' 
-                            placeholder="Lagos"
-                        />
-                        
-                        <FormPicker
-                            label='I am joining Click Ride as:'
-                            name="category" 
-                            numberOfColumns={1}
-                            placeholder="Car driver"
-                            items={[
-                                {
-                                    label: 'One',
-                                    value: '1',
-                                }
-                            ]}
-                            width="100%"
-                        />
-                        
-                        <FormCheckBox name="consent">
-                            By registering, you agree to our <Text style={styles.link}>Terms of Service</Text> and 
-                            <Text style={styles.link}> Privacy policy</Text>, commit to comply with obligations under the 
-                            European Union and local legislation and provide only legal 
-                            services and content on the Bolt Platform.
-                        </FormCheckBox>
-                        
-                        <View style={styles.buttonContainer}>
-                            <SubmitButton label="Sign up" />
+                <View style={styles.content}>
+                    <View style={styles.form}>
+                        <View style={styles.titleContainer}>
+                            <Text style={styles.title}>Sign up</Text>
                         </View>
-                    </Form>
+
+                        <Form initialValues={initialValues} onSubmit={handleSubmit} validationSchema={registrationSchema}>
+                            <FormField 
+                                autoCapitalize="none" 
+                                icon='envelope' 
+                                name="email" 
+                                label='Email' 
+                                placeholder="Enter email address"
+                                keyboardType='email-address'
+                            />
+
+                            <FormField 
+                                icon='phone' 
+                                name="phoneNumber" 
+                                label='Phone' 
+                                placeholder="+234 999 999 9999"
+                            />
+                            
+                            <FormField 
+                                icon='location-pin' 
+                                name="city" 
+                                label='City' 
+                                placeholder="Lagos"
+                            />
+                            
+                            <FormPicker
+                                label='I am joining Click Ride as:'
+                                name="category" 
+                                placeholder="Car driver"
+                                items={types}
+                                width="100%"
+                            />
+                            
+                            <FormCheckBox name="consent">
+                                By registering, you agree to our <Text style={styles.link}>Terms of Service</Text> and 
+                                <Text style={styles.link}> Privacy policy</Text>, commit to comply with obligations under the 
+                                European Union and local legislation and provide only legal 
+                                services and content on the Bolt Platform.
+                            </FormCheckBox>
+                            
+                            <View style={styles.buttonContainer}>
+                                <SubmitButton label="Sign up" />
+                            </View>
+                        </Form>
+                    </View>
                 </View>
             </KeyboardAwareScrollView>
         </View>
     );
 };
+
+const types = [
+    {
+        label: 'One',
+        value: '1',
+    }
+];
 
 const styles = StyleSheet.create({
     buttonContainer: { marginTop: 14 },
@@ -155,15 +158,9 @@ const styles = StyleSheet.create({
         paddingHorizontal: 23,
         paddingVertical: 20,
         borderRadius: 20,
-        marginTop: -50,
         zIndex: 1000000,
         elevation: 4,
-        overflow: 'hidden',
-
-        position: 'absolute',
-        marginHorizontal: 31,
-        top: '50%',
-
+        marginTop: '-75%'
     },
     imageContainer: { 
         overflow: 'hidden', 
@@ -193,6 +190,7 @@ const styles = StyleSheet.create({
         textAlign: 'center', 
         fontSize: 20, 
         lineHeight: 25,
+        color: colors.light.dark,
         fontFamily: defaultStyles.jakartaBold.fontFamily,
     },
     titleContainer: {

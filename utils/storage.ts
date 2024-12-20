@@ -1,7 +1,7 @@
 import * as SecureStore from 'expo-secure-store';
 import { User } from './models';
 
-const key = "trips-nd-fare-user";
+const key = "click-ride-user";
 
 const storeUser = async (user: User) => {
     try {

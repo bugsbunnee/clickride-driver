@@ -18,13 +18,11 @@ export interface PickerProps {
     placeholder: string;
     PickerItemComponent?: React.ElementType;
     onSelectItem: (item: PickerItemModel) => void;
-    numberOfColumns: number;
     width: DimensionValue;
 }
 
 const Picker: React.FC<PickerProps> = ({
   items,
-  numberOfColumns = 1,
   label,
   onSelectItem,
   PickerItemComponent = PickerItem,
@@ -33,7 +31,6 @@ const Picker: React.FC<PickerProps> = ({
   width = "100%",
 }) => {
   const [isVisible, setVisible] = useState(false);
-
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const insets = useSafeAreaInsets();
 
@@ -79,25 +76,31 @@ const Picker: React.FC<PickerProps> = ({
       <Modal visible={isVisible} animationType="slide" >
           <BottomSheetModalProvider>
             <Screen style={{ backgroundColor: colors.light.modalOpaque }}>
-                <BottomSheetModal animateOnMount ref={bottomSheetModalRef} index={1} snapPoints={['50%']}>
-                    <BottomSheetView style={styles.content}>
-                      <BottomSheetScrollView>
-                        {items.map((item) => (
-                          <PickerItemComponent
-                            item={item}
-                            key={item.value}
-                            label={item.label}
-                            onPress={() => {
-                              onSelectItem(item);
-                            }}
-                          />
-                        ))}
-                      </BottomSheetScrollView> 
+                <BottomSheetModal 
+                  animateOnMount 
+                  ref={bottomSheetModalRef} 
+                  enablePanDownToClose={false} 
+                  enableDynamicSizing={false} 
+                  index={0} 
+                  snapPoints={['50%']}
+                >
+                    <BottomSheetScrollView style={styles.content}>
+                      {items.map((item) => (
+                        <PickerItemComponent
+                          isActive={item.value === selectedItem?.value}
+                          item={item}
+                          key={item.value}
+                          label={item.label}
+                          onPress={() => {
+                            onSelectItem(item);
+                          }}
+                        />
+                      ))}
+                    </BottomSheetScrollView> 
 
-                      <View style={styles.close}>
-                          <Button label='Close' onPress={() => setVisible(false)} />
-                      </View>
-                    </BottomSheetView>
+                    <View style={[styles.close, styles.content, { paddingBottom: insets.bottom }]}>
+                        <Button label='Close' onPress={() => setVisible(false)} />
+                    </View>
                 </BottomSheetModal>
             </Screen>
           </BottomSheetModalProvider>

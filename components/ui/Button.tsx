@@ -15,7 +15,7 @@ interface Props {
 
 const Button: React.FC<Props> = ({ disabled, label, onPress, color = colors.light.white, backgroundColor = colors.light.primary }) => {
     return ( 
-        <TouchableOpacity disabled={disabled} style={[styles.container, { backgroundColor }]} onPress={onPress}>
+        <TouchableOpacity disabled={disabled} style={[styles.container, { backgroundColor: disabled ? colors.light.grayDeep : backgroundColor }]} onPress={onPress}>
             <Text style={[styles.text, { color }]}>
                 {label}
             </Text>
@@ -28,6 +28,7 @@ const styles = StyleSheet.create({
         backgroundColor: colors.light.primary,
         borderRadius: 90,
         padding: 10.73,
+        height: 46,
         justifyContent: 'center',
         alignItems: 'center',
         width: '100%'

@@ -68,7 +68,7 @@ const IncomingRidePage = () => {
                 </View>
 
                 <BottomSheetModal style={styles.curved} animateOnMount enablePanDownToClose={false} ref={bottomSheetRef} >
-                    <BottomSheetView style={styles.verticalPadding}>
+                    <BottomSheetView style={[styles.verticalPadding, { paddingBottom: insets.bottom }]}>
                         <View style={[styles.horizontalMargin, styles.user]}>
                             <Image
                                 src='https://picsum.photos/seed/696/3000/2000'

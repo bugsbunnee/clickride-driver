@@ -7,14 +7,15 @@ import { colors, icons, styles as defaultStyles } from '@/constants';
 import { PickerItemModel } from "@/utils/models";
 
 interface Props {
+    isActive: boolean;
     item: PickerItemModel;
     onPress: () => void;
 }
 
-const Picker: React.FC<Props> = ({ item, onPress }) => {
+const Picker: React.FC<Props> = ({ isActive, item, onPress }) => {
   return (
       <TouchableOpacity onPress={onPress}>
-        <View style={styles.container}>
+        <View style={[styles.container, isActive ? styles.active : styles.inactive]}>
             <Text style={styles.text}>{item.label}</Text>
 
             <FontAwesome
@@ -28,17 +29,24 @@ const Picker: React.FC<Props> = ({ item, onPress }) => {
 };
 
 const styles = StyleSheet.create({
+  active: {
+    backgroundColor: colors.light.primaryLight,
+    borderColor: colors.light.primary,
+  },
+  inactive: {
+    backgroundColor: colors.light.dew,
+    borderColor: colors.light.dewDark,
+  },
   container: {
-        borderWidth: 1,
-		borderRadius: 50,
-		borderColor: colors.light.dewDark,
-		backgroundColor: colors.light.dew,
-		flexDirection: 'row',
-		alignItems: 'center',
-		height: 45,
-        gap: 4,
-        width: '100%',
-		paddingHorizontal: 16,
+    borderWidth: 1,
+    borderRadius: 50,
+    marginBottom: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 45,
+    gap: 4,
+    width: '100%',
+    paddingHorizontal: 16,
   },
   placeholder: {
     color: colors.light.placeholder,

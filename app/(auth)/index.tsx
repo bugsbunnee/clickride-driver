@@ -2,9 +2,10 @@ import React from "react";
 import Screen from "@/components/ui/Screen";
 
 import { StyleSheet, useWindowDimensions, View } from "react-native";
+import { router } from "expo-router";
+
 import { Button, Image, Text } from "@/components/ui";
 import { colors, styles as defaultStyles } from "@/constants";
-import { router } from "expo-router";
 
 const OnboardingPage: React.FC = () => {
     const { width } = useWindowDimensions();
@@ -40,7 +41,7 @@ const OnboardingPage: React.FC = () => {
                 />
             </View>
         </Screen>
-     );
+    );
 };
 
 const styles = StyleSheet.create({
