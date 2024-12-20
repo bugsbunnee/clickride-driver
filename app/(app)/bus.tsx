@@ -10,17 +10,17 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors, icons, styles as defaultStyles } from '@/constants'
 import { Image } from '@/components/ui';
 
-import DocumentsForm from '@/components/onboarding/DocumentsForm';
-import PersonalInformationForm from '@/components/onboarding/PersonalInformationForm';
-import PaymentDetailsForm from '@/components/onboarding/PaymentDetailsForm';
-import VehicleInspectionDocumentsForm from '@/components/onboarding/VehicleInspectionForm';
+import PersonalInformationForm from '@/components/onboarding/bus/PersonalInformationForm';
+import PaymentDetailsForm from '@/components/onboarding/car/PaymentDetailsForm';
+
+
 
 const STEPS ={
     MIN: 1,
-    MAX: 4,
+    MAX: 3,
 };
 
-const OnboardingPage: React.FC = () => {
+const CarPage: React.FC = () => {
     const [currentStep, setCurrentStep] = useState(STEPS.MIN);
 
     const { height } = useWindowDimensions();
@@ -53,7 +53,7 @@ const OnboardingPage: React.FC = () => {
 
                 <View style={[styles.imageContainer, { height: height * 0.5 }]}>
                     <Image
-                        src={require('@/assets/images/driver.png')}
+                        src={require('@/assets/images/bus.png')}
                         style={styles.image}
                     />
                 </View>
@@ -70,9 +70,7 @@ const OnboardingPage: React.FC = () => {
                         </View>
 
                         {currentStep === STEPS.MIN && <PersonalInformationForm onFinishStep={handleIncrementStep} />}
-                        {currentStep === 2 && <DocumentsForm onFinishStep={handleIncrementStep} onPreviouStep={handleDecrementStep} />}
-                        {currentStep === 3 && <PaymentDetailsForm onFinishStep={handleIncrementStep} onPreviouStep={handleDecrementStep} />}
-                        {currentStep === STEPS.MAX && <VehicleInspectionDocumentsForm onFinishStep={handleIncrementStep} />}
+                        {currentStep === 2&& <PaymentDetailsForm onFinishStep={handleIncrementStep} />}
                     </View>
                 </View>
             </KeyboardAwareScrollView>
@@ -129,4 +127,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default OnboardingPage;
+export default CarPage;

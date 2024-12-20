@@ -4,15 +4,16 @@ import { useFormikContext } from "formik";
 import ErrorMessage from "./ErrorMessage";
 import Upload, { UploadProps } from "../lists/Upload";
 
-interface Props extends Pick<UploadProps, 'label' | 'description'>{
+interface Props extends Pick<UploadProps, 'label' | 'description' | 'supportedMimeTypes'>{
   name: string;
 }
 
-const FormUpload: React.FC<Props> = ({ name, label, description }) => {
-  const { errors, setFieldValue, touched, values } = useFormikContext<Record<string, string[]>>();
+const FormUpload: React.FC<Props> = ({ name, label, description, supportedMimeTypes }) => {
+  const { errors, setFieldValue, setFieldTouched, touched, values } = useFormikContext<Record<string, string[]>>();
   const imageUris = values[name];
 
   const handleAdd = (uri: string) => {
+    setFieldTouched(name);
     setFieldValue(name, [...imageUris, uri]);
   };
 
@@ -25,6 +26,7 @@ const FormUpload: React.FC<Props> = ({ name, label, description }) => {
       <Upload
         label={label}
         description={description}
+        supportedMimeTypes={supportedMimeTypes}
         imageUris={imageUris}
         onAddImage={handleAdd}
         onRemoveImage={handleRemove}

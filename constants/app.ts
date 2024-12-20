@@ -15,3 +15,6 @@ export const DATE_FORMAT = {
 export const TASKS = {
   LOCATION_UPDATES: 'click-ride-location-updates'
 };
+
+export const BYTE_SIZE_IN_MB = 1_000_000;
+export const MAX_FILE_SIZE_IN_MB = 2;

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { View, StyleSheet, TouchableWithoutFeedback, Alert, ScrollView, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
@@ -6,21 +6,32 @@ import * as ImagePicker from 'expo-image-picker';
 
 import { Image, Text } from '@/components/ui';
 import { colors, icons, styles as defaultStyles } from '@/constants';
+import { MAX_FILE_SIZE_IN_MB } from '@/constants/app';
+import { validateUploadedAssets } from '@/utils/lib';
 
 export interface UploadProps {
     label: string;
     description: string;
     imageUris: string[];
+    supportedMimeTypes?: string[];
     onAddImage: (imageUri: string) => void;
     onRemoveImage: (imageUri: string) => void;
 }
 
-const Upload: React.FC<UploadProps> = ({ description, label, imageUris, onAddImage, onRemoveImage }) => {
+const Upload: React.FC<UploadProps> = ({ description, label, imageUris, supportedMimeTypes = [], onAddImage, onRemoveImage }) => {
     const scrollView = useRef<ScrollView>(null);
 
     useEffect(() => {
         requestPermission();
     }, []);
+
+    const formatMimeTypes = useCallback(() => {
+        if (supportedMimeTypes) {
+            return supportedMimeTypes.map((mimeType) => "." + mimeType.split('/')[1]).join(', ');
+        }
+
+        return null;
+    }, [supportedMimeTypes]);
 
     const requestPermission = async () => {
         const { granted }= await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -32,9 +43,15 @@ const Upload: React.FC<UploadProps> = ({ description, label, imageUris, onAddIma
             let result = await ImagePicker.launchImageLibraryAsync({
                 mediaTypes: ['images'],
                 quality: 1,
+                selectionLimit: 1,
             });
-    
-            if (!result.canceled) onAddImage(result.assets[0].uri);
+
+            if (!result.canceled) {
+                const isValid = validateUploadedAssets(result.assets, supportedMimeTypes);
+                if (isValid) return onAddImage(result.assets[0].uri);
+                
+                Alert.alert("Error", `File size must be under ${MAX_FILE_SIZE_IN_MB}MB, and one of ${supportedMimeTypes.join(', ')}`);
+            }
         } catch (error) {
             console.log("Error reading an image", error);
         }
@@ -50,9 +67,9 @@ const Upload: React.FC<UploadProps> = ({ description, label, imageUris, onAddIma
     return (
         <View style={styles.container}>
             <Text style={styles.label}>{label}</Text>
-            <Text style={styles.description}>{description}</Text>
+            <Text style={styles.description}>{description}. {supportedMimeTypes && <Text style={[styles.description, styles.limit]}>Max {MAX_FILE_SIZE_IN_MB}MB. {formatMimeTypes()}</Text>}</Text>
             
-            <TouchableWithoutFeedback onPress={addImage}>
+            <TouchableOpacity onPress={addImage}>
                 <View style={styles.upload}>
                     <Text style={styles.text}>Upload file</Text>
 
@@ -62,7 +79,7 @@ const Upload: React.FC<UploadProps> = ({ description, label, imageUris, onAddIma
                         color={colors.light.gray}
                     />
                 </View>
-            </TouchableWithoutFeedback>
+            </TouchableOpacity>
 
             <ScrollView
                 ref={scrollView}
@@ -130,6 +147,9 @@ const styles = StyleSheet.create({
   list: {
     flexDirection: "row",
     paddingBottom: 11,
+  },
+  limit: {
+    color: '#AF0000'
   },
   preview: {
     alignItems: 'center',

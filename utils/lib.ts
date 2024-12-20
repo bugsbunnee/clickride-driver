@@ -3,11 +3,12 @@ import React from "react";
 import { NotificationContentInput, scheduleNotificationAsync } from "expo-notifications";
 import { LocationObjectCoords } from "expo-location";
 import { captureRef } from 'react-native-view-shot';
+import { ImagePickerAsset } from "expo-image-picker";
 
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 
-import { CURRENCY } from "@/constants/app";
+import { BYTE_SIZE_IN_MB, CURRENCY, MAX_FILE_SIZE_IN_MB } from "@/constants/app";
 
 dayjs.extend(duration);
 
@@ -65,3 +66,15 @@ export const sendLocalNotification = (content: NotificationContentInput) => {
     scheduleNotificationAsync({ content, trigger: null });
 };
 
+export const validateFileSize = (bytes: number) => {
+    return (bytes / BYTE_SIZE_IN_MB) <= MAX_FILE_SIZE_IN_MB;
+};
+
+export const validateUploadedAssets = (assets: ImagePickerAsset[], supportedMimeTypes: string[]) => {
+    return assets.every((asset) => {
+        const isTypeValid = asset.mimeType ? supportedMimeTypes.includes(asset.mimeType) : true;
+        const isSizeValid = asset.fileSize ? validateFileSize(asset.fileSize) : true;
+
+        return isSizeValid && isTypeValid;
+    });
+};

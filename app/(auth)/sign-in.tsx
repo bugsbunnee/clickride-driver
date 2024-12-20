@@ -32,7 +32,7 @@ const SignInPage: React.FC = () => {
 
     const handleSubmit = useCallback((auth: FormValues) => {
         dispatch(setUser({ name: 'Chuks', email: auth.email }));
-        router.push('/onboarding');
+        router.push('/bus');
     }, [dispatch]);
 
     const initialValues: FormValues = useMemo(() => {

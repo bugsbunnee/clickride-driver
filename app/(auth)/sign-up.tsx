@@ -30,7 +30,6 @@ const registrationSchema = yup.object<FormValues>().shape({
         test: (value, ctx) => {
             if (value) {
                 const isValid = isValidPhoneNumber(value, 'NG');
-                console.log('is valid', isValid);
                 if (!isValid) return ctx.createError({ message: 'Invalid phone number.' });
                 
                 return true

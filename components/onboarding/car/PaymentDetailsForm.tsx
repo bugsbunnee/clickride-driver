@@ -19,7 +19,7 @@ interface FormValues {
 
 interface Props {
     onFinishStep: () => void;
-    onPreviouStep: () => void;
+    onPreviouStep?: () => void;
 }
 
 const schema = yup.object<FormValues>().shape({
@@ -102,14 +102,16 @@ const PaymentDetailsForm: React.FC<Props> = ({ onFinishStep, onPreviouStep }) =>
                 />
 
                 <View style={styles.buttonContainer}>
-                    <View style={styles.flex}>
-                        <Button
-                            backgroundColor={colors.light.dew}
-                            color={colors.light.primary}
-                            label="Back" 
-                            onPress={onPreviouStep} 
-                        />
-                    </View>
+                    {onPreviouStep && (
+                        <View style={styles.flex}>
+                            <Button
+                                backgroundColor={colors.light.dew}
+                                color={colors.light.primary}
+                                label="Back" 
+                                onPress={onPreviouStep} 
+                            />
+                        </View>
+                    )}
 
                     <View style={styles.flex}>
                         <SubmitButton label="Next" />

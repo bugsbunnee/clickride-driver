@@ -74,8 +74,8 @@ const Picker: React.FC<PickerProps> = ({
       </View>
 
       <Modal visible={isVisible} animationType="slide" >
-          <BottomSheetModalProvider>
-            <Screen style={{ backgroundColor: colors.light.modalOpaque }}>
+          <BottomSheetModalProvider> 
+            <View style={[{ paddingTop: insets.top, paddingBottom: insets.bottom }, styles.body]}>
                 <BottomSheetModal 
                   animateOnMount 
                   ref={bottomSheetModalRef} 
@@ -102,7 +102,7 @@ const Picker: React.FC<PickerProps> = ({
                         <Button label='Close' onPress={() => setVisible(false)} />
                     </View>
                 </BottomSheetModal>
-            </Screen>
+            </View>
           </BottomSheetModalProvider>
       </Modal>
     </>
@@ -110,6 +110,10 @@ const Picker: React.FC<PickerProps> = ({
 }
 
 const styles = StyleSheet.create({
+  body: {
+    flex: 1, 
+    backgroundColor: colors.light.modalOpaque,
+  },
   container: {
     borderWidth: 1,
 		borderRadius: 50,
@@ -125,7 +129,11 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   content: { 
-    paddingHorizontal: 20
+    paddingHorizontal: 20,
+  },
+  popup: {
+    borderBottomLeftRadius: 40,
+    borderBottomRightRadius: 40
   },
   modal: {
     backgroundColor: colors.light.modalOpaque,
