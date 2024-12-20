@@ -61,7 +61,7 @@ const SignInPage: React.FC = () => {
                 </View>
 
                 <View style={styles.content}>
-                    <View style={styles.form}>
+                    <View style={[styles.form, defaultStyles.shadow]}>
                         <View style={styles.titleContainer}>
                             <Text style={styles.title}>Login</Text>
                         </View>

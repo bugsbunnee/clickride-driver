@@ -41,7 +41,7 @@ const registrationSchema = yup.object<FormValues>().shape({
     }),
     city: yup.string().required().label('City'),
     category: yup.object().required().label('Category'),
-    consent: yup.bool().oneOf([true], 'Terms and conditions must be accepted').required().label('Consent')
+    consent: yup.bool().oneOf([true], 'Terms and conditions must be accepted').label('Consent')
 });
 
 const SignUpPage: React.FC = () => {
@@ -81,7 +81,7 @@ const SignUpPage: React.FC = () => {
                 </View>
                 
                 <View style={styles.content}>
-                    <View style={styles.form}>
+                    <View style={[styles.form, defaultStyles.shadow]}>
                         <View style={styles.titleContainer}>
                             <Text style={styles.title}>Sign up</Text>
                         </View>
@@ -119,10 +119,13 @@ const SignUpPage: React.FC = () => {
                             />
                             
                             <FormCheckBox name="consent">
-                                By registering, you agree to our <Text style={styles.link}>Terms of Service</Text> and 
-                                <Text style={styles.link}> Privacy policy</Text>, commit to comply with obligations under the 
-                                European Union and local legislation and provide only legal 
-                                services and content on the Bolt Platform.
+                                <Text style={styles.text}>
+                                    By registering, you agree to our <Text style={styles.link}>Terms of Service</Text> and 
+                                    <Text style={styles.link}> Privacy policy</Text>, commit to comply with obligations under the 
+                                    European Union and local legislation and provide only legal 
+                                    services and content on the Bolt Platform.
+
+                                </Text>
                             </FormCheckBox>
                             
                             <View style={styles.buttonContainer}>
@@ -185,6 +188,11 @@ const styles = StyleSheet.create({
         position: 'absolute',
         zIndex: 1000,
         left: 23
+    },
+    text: {
+        fontSize: 10,
+        color: colors.light.graySemi,
+        lineHeight: 16,
     },
     title: { 
         textAlign: 'center', 

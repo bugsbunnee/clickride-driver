@@ -13,6 +13,7 @@ export interface AppTextInputProps extends TextInputProps {
 	width?: DimensionValue;
 	label?: string;
 	error?: string;
+	tip?: string;
 }
 
 const AppTextInput: React.FC<AppTextInputProps> = ({
@@ -20,6 +21,7 @@ const AppTextInput: React.FC<AppTextInputProps> = ({
 	error,
 	label,
 	icon,
+	tip,
 	onBlur,
 	onFocus,
 	...otherProps
@@ -83,6 +85,8 @@ const AppTextInput: React.FC<AppTextInputProps> = ({
 				)}
 			</Animated.View>
 
+			{tip && <Text style={styles.tip}>{tip}</Text>}
+
 			<ErrorMessage isVisible={!!error} errorMessage={error} />
 		</View>
 	);
@@ -118,6 +122,14 @@ const styles = StyleSheet.create({
 		letterSpacing: 0.25,
 		flex: 1,
 		lineHeight: 20,
+		fontFamily: defaultStyles.jakartaMedium.fontFamily,
+	},
+	tip: {
+		color: colors.light.gray,
+		fontSize: 10,
+		letterSpacing: 0.25,
+		lineHeight: 20,
+		marginTop: 8,
 		fontFamily: defaultStyles.jakartaMedium.fontFamily,
 	},
 });

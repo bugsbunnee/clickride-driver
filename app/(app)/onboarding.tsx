@@ -1,5 +1,4 @@
 import React, { useCallback, useState } from 'react';
-import Animated from 'react-native-reanimated';
 import _ from 'lodash';
 
 import { StyleSheet, View, TouchableOpacity, useWindowDimensions } from 'react-native';
@@ -7,26 +6,38 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { interpolateColor, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 import { colors, icons, styles as defaultStyles } from '@/constants'
-import { Image, Text } from '@/components/ui';
+import { Image } from '@/components/ui';
 
+import DocumentsForm from '@/components/onboarding/DocumentsForm';
 import PersonalInformationForm from '@/components/onboarding/PersonalInformationForm';
+import PaymentDetailsForm from '@/components/onboarding/PaymentDetailsForm';
+import VehicleInspectionDocumentsForm from '@/components/onboarding/VehicleInspectionForm';
+
+const STEPS ={
+    MIN: 1,
+    MAX: 4,
+};
 
 const OnboardingPage: React.FC = () => {
-    const focusValue = useSharedValue<number>(1);
-    
+    const [currentStep, setCurrentStep] = useState(STEPS.MIN);
+
     const { height } = useWindowDimensions();
     const { top } = useSafeAreaInsets();
     
-    const stepStyle = useAnimatedStyle(() => ({
-        backgroundColor: interpolateColor(focusValue.value, [1, 4], [colors.light.dewDark, colors.light.primary, colors.light.dewDark, colors.light.primary])
-    }));
-
     const handleIncrementStep = useCallback(() => {
-        const timing = withTiming(focusValue.get() + 1, { duration: 500 });
-        focusValue.set(timing);
+        setCurrentStep((previousValue) =>  {
+            const nextStep = previousValue + 1;
+            return nextStep <= STEPS.MAX ? nextStep : previousValue;
+        });
+    }, []);
+
+    const handleDecrementStep = useCallback(() => {
+        setCurrentStep((previousValue) =>  {
+            const previousStep = previousValue - 1;
+            return previousStep >= STEPS.MIN ? previousStep : previousValue;
+        });
     }, []);
 
     return (
@@ -42,27 +53,26 @@ const OnboardingPage: React.FC = () => {
 
                 <View style={[styles.imageContainer, { height: height * 0.5 }]}>
                     <Image
-                        src={require('@/assets/images/sign-up.png')}
+                        src={require('@/assets/images/driver.png')}
                         style={styles.image}
                     />
                 </View>
                 
                 <View style={styles.content}>
-                    <View style={styles.form}>
-                        <View style={styles.titleContainer}>
-                            <View style={styles.steps}>
-                                {_.range(1, 5).map((step) => (
-                                    <Animated.View 
-                                        key={step} 
-                                        style={[styles.step, stepStyle]} 
-                                    />
-                                ))}
-                            </View>
-                            <Text style={styles.title}>Personal Information and Vehicle Details</Text>
-                            <Text style={styles.description}>Only your first name are visible to clients during bookings</Text>
+                    <View style={[styles.form, defaultStyles.shadow]}>
+                        <View style={styles.steps}>
+                            {_.range(STEPS.MIN, STEPS.MAX + 1).map((step) => (
+                                <View
+                                    key={step} 
+                                    style={[styles.step, { backgroundColor: step === currentStep ? colors.light.primary : colors.light.dewDark }]} 
+                                />
+                            ))}
                         </View>
 
-                        <PersonalInformationForm onFinishStep={handleIncrementStep} />
+                        {currentStep === STEPS.MIN && <PersonalInformationForm onFinishStep={handleIncrementStep} />}
+                        {currentStep === 2 && <DocumentsForm onFinishStep={handleIncrementStep} onPreviouStep={handleDecrementStep} />}
+                        {currentStep === 3 && <PaymentDetailsForm onFinishStep={handleIncrementStep} onPreviouStep={handleDecrementStep} />}
+                        {currentStep === STEPS.MAX && <VehicleInspectionDocumentsForm onFinishStep={handleIncrementStep} />}
                     </View>
                 </View>
             </KeyboardAwareScrollView>
@@ -71,18 +81,8 @@ const OnboardingPage: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-    buttonContainer: { marginTop: 14 },
     container: { flex: 1, backgroundColor: colors.light.white },
     content: { flex: 1, paddingHorizontal: 31, marginBottom: 50 },
-    description: { 
-        textAlign: 'center', 
-        fontSize: 10, 
-        lineHeight: 15,
-        color: colors.light.graySemi,
-        fontFamily: defaultStyles.jakartaRegular.fontFamily,
-        marginTop: 4,
-        maxWidth: '80%'
-    },
     image: {
       height: '100%',
       width: '100%',
@@ -126,21 +126,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         gap: 6,
         marginBottom: 10
-    },
-    title: { 
-        textAlign: 'center', 
-        fontSize: 18, 
-        lineHeight: 22,
-        color: colors.light.dark,
-        fontFamily: defaultStyles.jakartaBold.fontFamily,
-    },
-    titleContainer: {
-        borderBottomWidth: 1,
-        borderBottomColor: colors.light.dew,
-        paddingBottom: 5,
-        marginBottom: 14,
-        justifyContent: 'center',
-        alignItems: 'center'
     },
 });
 

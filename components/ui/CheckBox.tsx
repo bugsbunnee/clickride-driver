@@ -4,8 +4,6 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { colors, icons, styles as defaultStyles } from "@/constants";
 
-import Text from '@/components/ui/Text';
-
 interface Props extends PropsWithChildren {
     isChecked: boolean;
     onChange: () => void;
@@ -19,14 +17,14 @@ const CheckBox: React.FC<Props> = ({ children, isChecked, onChange }) => {
                     <MaterialCommunityIcons 
                         name='check' 
                         color={colors.light.primary} 
-                        size={12} 
+                        size={8} 
                     />
                 )}
             </View>
 
-            <Text style={styles.text}>
+            <View style={styles.flex}>
                 {children}
-            </Text>
+            </View>
         </TouchableOpacity>
      );
 };
@@ -35,8 +33,8 @@ const styles = StyleSheet.create({
     checkbox: { 
         borderWidth: 1,
         borderColor: colors.light.borderMid,
-        width: 15,
-        height: 15,
+        width: 10,
+        height: 10,
         borderRadius: 2,
         flexDirection: 'row',
         alignItems: 'flex-start',
@@ -45,16 +43,10 @@ const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
         alignItems: 'flex-start',
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
         gap: 9,
     },
-    text: {
-        color: colors.light.graySemi,
-        fontSize: 10,
-        lineHeight: 14,
-        marginTop: -4,
-        fontFamily: defaultStyles.jakartaRegular.fontFamily
-    }
+    flex: { flex: 1, marginTop: -4 },
 });
 
 export default CheckBox;

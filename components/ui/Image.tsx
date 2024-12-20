@@ -37,7 +37,6 @@ const styles = StyleSheet.create({
         height: "100%", 
         backgroundColor: colors.light.grayLight, 
         borderRadius: 10 ,
-
     },
 })
 
