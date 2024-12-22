@@ -40,6 +40,10 @@ const styles = StyleSheet.create({
     height: "100%",
     opacity: 0.9,
     width: "100%",
+    right: 0,
+    left: 0,
+    bottom: 0,
+    top: 0,
     zIndex: 1,
   },
   lottie: {

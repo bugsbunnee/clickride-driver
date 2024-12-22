@@ -1,5 +1,8 @@
 import React from "react";
+import _ from 'lodash';
+
 import { useFormikContext } from "formik";
+import { DocumentUpload } from "@/utils/models";
 
 import ErrorMessage from "./ErrorMessage";
 import Upload, { UploadProps } from "../lists/Upload";
@@ -9,16 +12,16 @@ interface Props extends Pick<UploadProps, 'label' | 'description' | 'supportedMi
 }
 
 const FormUpload: React.FC<Props> = ({ name, label, description, supportedMimeTypes }) => {
-  const { errors, setFieldValue, setFieldTouched, touched, values } = useFormikContext<Record<string, string[]>>();
-  const imageUris = values[name];
+  const { errors, setFieldValue, setFieldTouched, touched, values } = useFormikContext<Record<string, DocumentUpload[]>>();
+  const images = values[name];
 
-  const handleAdd = (uri: string) => {
+  const handleAdd = (image: DocumentUpload) => {
     setFieldTouched(name);
-    setFieldValue(name, [...imageUris, uri]);
+    setFieldValue(name, [...images, image]);
   };
 
   const handleRemove = (uri: string) => {
-    setFieldValue(name, imageUris.filter((imageUri) => imageUri !== uri));
+    setFieldValue(name, images.filter((image) => image.uri !== uri));
   };
 
   return (
@@ -27,12 +30,15 @@ const FormUpload: React.FC<Props> = ({ name, label, description, supportedMimeTy
         label={label}
         description={description}
         supportedMimeTypes={supportedMimeTypes}
-        imageUris={imageUris}
+        imageUris={images}
         onAddImage={handleAdd}
         onRemoveImage={handleRemove}
       />
 
-      <ErrorMessage errorMessage={errors[name] as string} isVisible={touched[name] as boolean} />
+      <ErrorMessage 
+        errorMessage={errors[name] as string} 
+        isVisible={touched[name] as unknown as boolean} 
+      />
     </>
   );
 };

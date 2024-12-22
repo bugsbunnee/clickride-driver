@@ -67,7 +67,6 @@ const PersonalInformationForm: React.FC<Props> = ({ onFinishStep }) => {
                     label='Profile photo'
                     description="Kindly upload a clear passport photo of your self"
                     name="profilePhoto" 
-                    supportedMimeTypes={['image/jpeg', 'image/png']}
                 />
 
                 <View style={styles.buttonContainer}>

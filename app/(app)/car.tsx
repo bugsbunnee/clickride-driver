@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import _ from 'lodash';
 
 import { StyleSheet, View, TouchableOpacity, useWindowDimensions } from 'react-native';
@@ -7,6 +7,7 @@ import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
+import { useAppSelector } from '@/store/hooks';
 import { colors, icons, styles as defaultStyles } from '@/constants'
 import { Image } from '@/components/ui';
 
@@ -15,30 +16,52 @@ import PersonalInformationForm from '@/components/onboarding/car/PersonalInforma
 import PaymentDetailsForm from '@/components/onboarding/car/PaymentDetailsForm';
 import VehicleInspectionDocumentsForm from '@/components/onboarding/car/VehicleInspectionForm';
 
-const STEPS ={
-    MIN: 1,
-    MAX: 4,
+const KEYS = {
+    personalInformation: 'personal-information',
+    vehicleDocuments: 'vehicle-documents',
+    paymentDetails: 'payment-details',
+    vehicleInspection: 'vehicle-inspection',
 };
 
 const CarPage: React.FC = () => {
-    const [currentStep, setCurrentStep] = useState(STEPS.MIN);
+    const [currentStep, setCurrentStep] = useState(KEYS.personalInformation);
 
+    const { account } = useAppSelector((state) => state.auth);
     const { height } = useWindowDimensions();
     const { top } = useSafeAreaInsets();
-    
-    const handleIncrementStep = useCallback(() => {
-        setCurrentStep((previousValue) =>  {
-            const nextStep = previousValue + 1;
-            return nextStep <= STEPS.MAX ? nextStep : previousValue;
-        });
-    }, []);
 
-    const handleDecrementStep = useCallback(() => {
-        setCurrentStep((previousValue) =>  {
-            const previousStep = previousValue - 1;
-            return previousStep >= STEPS.MIN ? previousStep : previousValue;
-        });
+    const Steps = useMemo(() => {
+        return {
+            [KEYS.personalInformation]: <PersonalInformationForm />,
+            [KEYS.vehicleDocuments]: <DocumentsForm onPreviouStep={() => setCurrentStep(KEYS.personalInformation)} />,
+            [KEYS.paymentDetails]: <PaymentDetailsForm onPreviouStep={() => setCurrentStep(KEYS.vehicleDocuments)} />,
+            [KEYS.vehicleDocuments]: <VehicleInspectionDocumentsForm />,
+        }
     }, []);
+    
+    useEffect(() => {
+        function determineNextStep() {
+            if (!account || !account.profile || !account.profile.personalInformation) {
+                return setCurrentStep(KEYS.personalInformation);
+            }
+
+            if (!account.profile.vehicleDocuments) {
+                return setCurrentStep(KEYS.vehicleDocuments);
+            }
+
+            if (!account.profile.paymentDetails) {
+                return setCurrentStep(KEYS.paymentDetails);
+            }
+
+            if (!account.profile.inspectionUrl) {
+                return setCurrentStep(KEYS.vehicleInspection);
+            }
+
+            router.push('/location');
+        }
+
+        determineNextStep();
+    }, [account]);
 
     return (
         <View style={styles.container}>
@@ -61,7 +84,7 @@ const CarPage: React.FC = () => {
                 <View style={styles.content}>
                     <View style={[styles.form, defaultStyles.shadow]}>
                         <View style={styles.steps}>
-                            {_.range(STEPS.MIN, STEPS.MAX + 1).map((step) => (
+                            {Object.keys(Steps).map((step) => (
                                 <View
                                     key={step} 
                                     style={[styles.step, { backgroundColor: step === currentStep ? colors.light.primary : colors.light.dewDark }]} 
@@ -69,10 +92,7 @@ const CarPage: React.FC = () => {
                             ))}
                         </View>
 
-                        {currentStep === STEPS.MIN && <PersonalInformationForm onFinishStep={handleIncrementStep} />}
-                        {currentStep === 2 && <DocumentsForm onFinishStep={handleIncrementStep} onPreviouStep={handleDecrementStep} />}
-                        {currentStep === 3 && <PaymentDetailsForm onFinishStep={handleIncrementStep} onPreviouStep={handleDecrementStep} />}
-                        {currentStep === STEPS.MAX && <VehicleInspectionDocumentsForm onFinishStep={handleIncrementStep} />}
+                        {Steps[currentStep]}
                     </View>
                 </View>
             </KeyboardAwareScrollView>
@@ -91,12 +111,12 @@ const styles = StyleSheet.create({
         backgroundColor: colors.light.white,
         borderWidth: 1,
         borderColor: 'rgba(224, 224, 224, 0.62)',
-        paddingHorizontal: 23,
-        paddingVertical: 20,
         borderRadius: 20,
         zIndex: 1000000,
         elevation: 4,
-        marginTop: '-75%'
+        marginTop: '-75%',
+        overflow: 'hidden',
+        paddingTop: 20
     },
     imageContainer: { 
         overflow: 'hidden', 

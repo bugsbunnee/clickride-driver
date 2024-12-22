@@ -1,10 +1,13 @@
 import { Redirect, Stack } from "expo-router";
+
 import { setAuthenticating } from "@/store/auth/slice";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { getNextRoute } from "@/utils/lib";
+
 import Splash from "@/components/ui/Splash";
 
 const AuthLayout = () => {
-    const auth = useAppSelector((state) => state.auth)
+    const auth = useAppSelector((state) => state.auth);
     const dispatch = useAppDispatch();
 
     if (auth.isAuthenticating) {
@@ -12,7 +15,7 @@ const AuthLayout = () => {
     }
 
     if (auth.account) {
-        return <Redirect href='/location' />
+        return <Redirect href={getNextRoute()} />
     }
 
     return ( 
@@ -21,7 +24,7 @@ const AuthLayout = () => {
             <Stack.Screen name="sign-in" />
             <Stack.Screen name="sign-up" />
         </Stack>
-     );
+    );
 };
  
 export default AuthLayout;

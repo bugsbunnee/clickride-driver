@@ -97,7 +97,7 @@ const SignUpPage: React.FC = () => {
             const fieldErrors = getFieldErrorsFromError(error);
             if (fieldErrors) helpers.setErrors(fieldErrors);
         }
-    }, []);
+    }, [register]);
 
     return (
         <View style={styles.container}>
@@ -192,7 +192,7 @@ const SignUpPage: React.FC = () => {
 const styles = StyleSheet.create({
     buttonContainer: { marginTop: 14 },
     container: { flex: 1, backgroundColor: colors.light.white },
-    content: { flex: 1, paddingHorizontal: 31 },
+    content: { flex: 1, paddingHorizontal: 31, marginBottom: 50 },
     image: {
       height: '100%',
       width: '100%',

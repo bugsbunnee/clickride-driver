@@ -2,24 +2,30 @@ import React, { useCallback, useMemo } from "react";
 import _ from "lodash";
 
 import { View, StyleSheet } from "react-native";
+import { FormikHelpers } from "formik";
 import * as yup from 'yup';
 
-import { Form, FormField, FormPicker, SubmitButton } from '@/components/forms';
-import { Button, Text } from "@/components/ui";
-import { PickerItemModel } from '@/utils/models';
+import { Form, FormError, FormField, FormPicker, SubmitButton } from '@/components/forms';
+import { ActivityIndicator, Button, Text } from "@/components/ui";
+import { PaymentDetails, PickerItemModel } from '@/utils/models';
 import { colors, styles as defaultStyles } from '@/constants'
+import { useUpdatePaymentDetailsMutation } from "@/store/api/onboarding";
+
+import { getFieldErrorsFromError, getMessageFromError } from "@/utils/lib";
+import { BANKS, BILLING_TYPES } from "@/utils/data";
+
+import storage from "@/utils/storage";
 
 interface FormValues {
     billingType: PickerItemModel | null;
     address: string;
     accountName: string;
     accountNumber: string;
-    bankName: string;
+    bankName: PickerItemModel | null;
 }
 
 interface Props {
     buttonLabel?: string;
-    onFinishStep: () => void;
     onPreviouStep?: () => void;
 }
 
@@ -37,88 +43,109 @@ const schema = yup.object<FormValues>().shape({
     }).required().label('Bank name'),
 });
 
-const PaymentDetailsForm: React.FC<Props> = ({ onFinishStep, onPreviouStep, buttonLabel = "Next" }) => {
+const PaymentDetailsForm: React.FC<Props> = ({ onPreviouStep, buttonLabel = "Next" }) => {
+    const [updatePaymentDetails, result] = useUpdatePaymentDetailsMutation();
+
     const initialValues: FormValues = useMemo(() => {
         return {
             billingType: null,
             address: '',
             accountName: '',
             accountNumber: '',
-            bankName: '',
+            bankName: null,
         };
     }, []);
 
-    const handleSubmit = useCallback((paymentDetails: FormValues) => {
-        console.log(paymentDetails);
-        onFinishStep();
-    }, [onFinishStep]);
+    const handleSubmit = useCallback(async (paymentDetails: FormValues, helpers: FormikHelpers<FormValues>) => {
+        const payload: PaymentDetails = {
+            billingType: paymentDetails.billingType!.value.toString(),
+            address: paymentDetails.address,
+            accountName: paymentDetails.accountName,
+            accountNumber: paymentDetails.accountNumber,
+            bankName: paymentDetails.bankName!.value.toString(),
+        };
+
+       try {
+            const response = await updatePaymentDetails(payload).unwrap();
+            storage.storeSession(response);
+       } catch (error) {
+            const fieldErrors = getFieldErrorsFromError(error);
+            if (fieldErrors) helpers.setErrors(fieldErrors);
+       }
+    }, [updatePaymentDetails]);
 
     return ( 
         <>
-            <View style={styles.titleContainer}>
-                <Text style={styles.title}>Payment Details</Text>
-                <Text style={styles.description}>We need your payment details to pay you</Text>
-            </View>
+            <ActivityIndicator visible={result.isLoading} />
 
-            <Form initialValues={initialValues} onSubmit={handleSubmit} validationSchema={schema}>
-                <FormPicker
-                    label='Billing type'
-                    name="billingType" 
-                    placeholder="Select billing type"
-                    items={billingTypes}
-                    width="100%"
-                />
-
-                <FormField 
-                    autoCapitalize="sentences" 
-                    name="address" 
-                    label="Address" 
-                    placeholder="Enter address"
-                    keyboardType="default"
-                />
-
-                <FormField 
-                    autoCapitalize="words"
-                    label='Bank account holder name'
-                    name="accountName" 
-                    placeholder="John Doe"
-                    keyboardType="name-phone-pad"
-                    tip="Bank account name, person or company"
-                />
-
-                <FormField 
-                    label='Bank account number'
-                    name="accountNumber" 
-                    placeholder="999900122"
-                    keyboardType='numeric'
-                    maxLength={10}
-                />
-
-                <FormPicker
-                    label='Bank name'
-                    name="bankName" 
-                    placeholder="Select bank name"
-                    items={bankNames}
-                    width="100%"
-                />
-
-                <View style={styles.buttonContainer}>
-                    {onPreviouStep && (
-                        <View style={styles.flex}>
-                            <Button
-                                backgroundColor={colors.light.dew}
-                                color={colors.light.primary}
-                                label="Back" 
-                                onPress={onPreviouStep} 
-                            />
-                        </View>
-                    )}
-
-                    <View style={styles.flex}>
-                        <SubmitButton label={buttonLabel} />
-                    </View>
+            <View style={styles.content}>
+                <View style={styles.titleContainer}>
+                    <Text style={styles.title}>Payment Details</Text>
+                    <Text style={styles.description}>We need your payment details to pay you</Text>
                 </View>
-            </Form>
+
+                <Form initialValues={initialValues} onSubmit={handleSubmit} validationSchema={schema}>
+                    <FormPicker
+                        label='Billing type'
+                        name="billingType" 
+                        placeholder="Select billing type"
+                        items={BILLING_TYPES}
+                        width="100%"
+                    />
+
+                    <FormField 
+                        autoCapitalize="sentences" 
+                        name="address" 
+                        label="Address" 
+                        placeholder="Enter address"
+                        keyboardType="default"
+                    />
+
+                    <FormField 
+                        autoCapitalize="words"
+                        label='Bank account holder name'
+                        name="accountName" 
+                        placeholder="John Doe"
+                        keyboardType="name-phone-pad"
+                        tip="Bank account name, person or company"
+                    />
+
+                    <FormField 
+                        label='Bank account number'
+                        name="accountNumber" 
+                        placeholder="999900122"
+                        keyboardType='numeric'
+                        maxLength={10}
+                    />
+
+                    <FormPicker
+                        label='Bank name'
+                        name="bankName" 
+                        placeholder="Select bank name"
+                        items={bankNames}
+                        width="100%"
+                    />
+
+                    <FormError error={getMessageFromError(result.error)} />
+
+                    <View style={styles.buttonContainer}>
+                        {onPreviouStep && (
+                            <View style={styles.flex}>
+                                <Button
+                                    backgroundColor={colors.light.dew}
+                                    color={colors.light.primary}
+                                    label="Back" 
+                                    onPress={onPreviouStep} 
+                                />
+                            </View>
+                        )}
+
+                        <View style={styles.flex}>
+                            <SubmitButton label={buttonLabel} />
+                        </View>
+                    </View>
+                </Form>
+            </View>
         </>
     );
 };
@@ -130,6 +157,11 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "center"
+    },
+    content: {
+        flex: 1,
+        paddingHorizontal: 23,
+        paddingBottom: 20,
     },
     description: { 
         textAlign: 'center', 
@@ -157,22 +189,9 @@ const styles = StyleSheet.create({
     },
 });
 
-const billingTypes = [
-    {
-        label: 'Individual',
-        value: 'individual',
-    },
-    {
-        label: 'Corporate',
-        value: 'corporate'
-    }
-];
-
-const bankNames = [
-    {
-        label: 'Kuda',
-        value: 'kuda',
-    }
-];
+const bankNames: PickerItemModel[] = BANKS.map((bank) => ({
+    label: bank,
+    value: bank,
+}));
 
 export default PaymentDetailsForm;

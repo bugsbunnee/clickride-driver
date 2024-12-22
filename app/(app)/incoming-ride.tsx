@@ -13,8 +13,10 @@ import LocationSwitch from '@/components/maps/LocationSwitch';
 
 import { colors, icons, styles as defaultStyles } from '@/constants';
 import { Button, Image, Text } from '@/components/ui';
+import { useAppSelector } from '@/store/hooks';
 
 const IncomingRidePage = () => {
+    const auth = useAppSelector((state) => state.auth);
     const insets = useSafeAreaInsets();
     const bottomSheetRef = useRef<BottomSheetModal>(null);
 
@@ -77,7 +79,7 @@ const IncomingRidePage = () => {
                             />
 
                             <View style={styles.flex}>
-                                <Text style={styles.name}>Joseph Ogbaji</Text>
+                                <Text style={styles.name}>{auth.account!.user!.firstName} {auth.account!.user!.lastName}</Text>
 
                                 <View style={styles.rating}>
                                     {[1, 2, 3, 4, 5].map((rating) => (

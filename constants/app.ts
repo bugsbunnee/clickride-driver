@@ -1,5 +1,4 @@
 
-export const DATE_TIME_FORMAT = 'DD-MM-YYYY HH:mm:ss';
 
 export const CURRENCY = {
   NGN: {
@@ -16,6 +15,12 @@ export const TASKS = {
   LOCATION_UPDATES: 'click-ride-location-updates'
 };
 
+export enum Service {
+  Car = 'car',
+  Bus = 'bus',
+}
+
 export const BYTE_SIZE_IN_MB = 1_000_000;
+export const DATE_TIME_FORMAT = 'DD-MM-YYYY HH:mm:ss';
 export const MAX_FILE_SIZE_IN_MB = 2;
 export const MIN_VEHICLE_YEAR = 1990;

@@ -4,10 +4,18 @@ import _ from "lodash";
 import { View, StyleSheet } from "react-native";
 import * as yup from 'yup';
 
-import { PickerItemModel } from '@/utils/models';
+import { PickerItemModel, TripDetails } from '@/utils/models';
+import { BUS_TYPES } from "@/utils/data";
+
 import { colors, styles as defaultStyles } from '@/constants'
 import { Form, FormCheckBox, FormField, FormMultiCheckBox, FormMultiPicker, FormPicker, SubmitButton } from '@/components/forms';
-import { Text } from "@/components/ui";
+import { ActivityIndicator, Text } from "@/components/ui";
+import { useGetStatesQuery } from "@/store/api/services";
+import { FormikHelpers } from "formik";
+import { useUpdateTripDetailsMutation } from "@/store/api/onboarding";
+import { getFieldErrorsFromError } from "@/utils/lib";
+
+import storage from "@/utils/storage";
 
 interface FormValues {
     origin: PickerItemModel | null;
@@ -20,16 +28,26 @@ interface FormValues {
     returnTime: PickerItemModel | null;
     busType: PickerItemModel | null;
     busCapacity: PickerItemModel | null;
-    airConditioning: boolean;
-}
-
-interface Props {
-    onFinishStep: () => void;
+    airConditioning: number;
 }
 
 const schema = yup.object<FormValues>().shape({
     origin: yup.object().required().label('From'),
-    destination: yup.object().required().label('To'),
+    destination: yup.object().required().test({
+        name: 'is-not-same-as-origin',
+        skipAbsent: true,
+        message: 'Origin must be different from destination',
+        test: (destination, ctx) => {
+            if (destination && ctx.parent.origin) {
+                const destinationValue = _.get(destination, 'value');
+                const originValue = _.get(ctx.parent.origin, 'value');
+
+                return originValue !== destinationValue;
+            }
+
+            return false;
+        }
+    }).label('To'),
     price: yup.number().positive().required().label('Price'),
     isRoundTrip: yup.bool().required().label('Is Round Trip'),
     departureDates: yup.array().min(1, 'Please select at least one day').required().label('Departure Date'),
@@ -41,7 +59,10 @@ const schema = yup.object<FormValues>().shape({
     airConditioning: yup.string().required().label('Air conditioning')
 });
 
-const TripDetailsForm: React.FC<Props> = ({ onFinishStep }) => {
+const TripDetailsForm: React.FC = () => {
+    const { data = [], isLoading } = useGetStatesQuery();
+    const [updateTripDetails, { isLoading: isUpdating }] = useUpdateTripDetailsMutation();
+
     const initialValues: FormValues = useMemo(() => {
         return {
             origin: null,
@@ -54,124 +75,152 @@ const TripDetailsForm: React.FC<Props> = ({ onFinishStep }) => {
             returnTime: null,
             busType: null,
             busCapacity: null,
-            airConditioning: false,
+            airConditioning: 0,
         };
     }, []);
 
-    const handleSubmit = useCallback((tripDetails: FormValues) => {
-        console.log(tripDetails);
-        onFinishStep();
-    }, [onFinishStep]);
+    const handleSubmit = useCallback(async (tripDetails: FormValues, helpers: FormikHelpers<FormValues>) => {
+        const payload: TripDetails = {
+            origin: tripDetails.origin!.value.toString(),
+            destination: tripDetails.destination!.value.toString(),
+            price: parseFloat(tripDetails.price.toString()),
+            isRoundTrip: tripDetails.isRoundTrip,
+            departureDates: tripDetails.departureDates.map((date) => date.value as number),
+            returnDates: tripDetails.returnDates.map((date) => date.value as number),
+            departureTime: tripDetails.departureTime!.value.toString(),
+            returnTime: tripDetails.returnTime!.value.toString(),
+            busType: tripDetails.busType!.value.toString(),
+            busCapacity: tripDetails.busCapacity!.value as number,
+            airConditioning: tripDetails.airConditioning === 1,
+        }
+
+        try {
+            const response = await updateTripDetails(payload).unwrap();
+            storage.storeSession(response);
+        } catch (error) {
+            const fieldErrors = getFieldErrorsFromError(error);
+            if (fieldErrors) helpers.setErrors(fieldErrors);
+        }
+    }, [updateTripDetails]);
 
     return ( 
         <>
-            <View style={styles.titleContainer}>
-                <Text style={styles.title}>Trip Details</Text>
-                <Text style={styles.description}>Enter trip details to list your transport</Text>
+            <ActivityIndicator visible={isLoading || isUpdating} />
+
+            <View style={styles.content}>
+                <View style={styles.titleContainer}>
+                    <Text style={styles.title}>Trip Details</Text>
+                    <Text style={styles.description}>Enter trip details to list your transport</Text>
+                </View>
+
+                <Form initialValues={initialValues} onSubmit={handleSubmit} validationSchema={schema}>
+                    <FormPicker
+                        name="origin" 
+                        label='From' 
+                        placeholder='Lagos'
+                        items={data}
+                        width="100%"
+                    />
+                    
+                    <FormPicker
+                        name="destination" 
+                        label='To' 
+                        placeholder='Benin'
+                        items={data}
+                        width="100%"
+                    />
+
+                    <FormField 
+                        name="price" 
+                        label='Price of trip' 
+                        placeholder='Enter price'
+                        keyboardType='numeric'
+                    />
+
+                    <View style={{ marginBottom: 18 }}>
+                        <FormCheckBox name="isRoundTrip">
+                            <Text style={styles.roundTrip}>Check the box if price is round trip</Text>
+                        </FormCheckBox>
+                    </View>
+
+                    <View style={styles.row}>
+                        <View style={styles.flex}>
+                            <FormMultiPicker
+                                name="departureDates" 
+                                label='Departure dates' 
+                                placeholder='Select dates'
+                                items={dates}
+                                width="100%"
+                            />
+                        </View>
+                    
+                        <View style={styles.flex}>
+                            <FormMultiPicker
+                                name="returnDates" 
+                                label='Return dates' 
+                                placeholder='Select dates'
+                                items={dates}
+                                width="100%"
+                            />
+                        </View>
+                    </View>
+                    
+                    <View style={styles.row}>
+                        <View style={styles.flex}>
+                            <FormPicker
+                                name="departureTime" 
+                                label='Departure time' 
+                                placeholder='Select time'
+                                items={times}
+                                width="100%"
+                            />
+                        </View>
+                    
+                        <View style={styles.flex}>
+                            <FormPicker
+                                name="returnTime" 
+                                label='Return time' 
+                                placeholder='Select time'
+                                items={times}
+                                width="100%"
+                            />
+                        </View>
+                    </View>
+
+                    <FormPicker
+                        name="busType" 
+                        label='Bus type' 
+                        placeholder='Select bus type'
+                        items={BUS_TYPES}
+                        width="100%"
+                    />
+                    
+                    <FormPicker
+                        name="busCapacity" 
+                        label='Bus capacity' 
+                        placeholder='Select bus capacity'
+                        items={capacities}
+                        width="100%"
+                    />
+
+                    <FormMultiCheckBox name="airConditioning" options={airConditioningOptions} />
+
+                    <View style={styles.buttonContainer}>
+                        <SubmitButton label="List Bus Trip" />
+                    </View>
+                </Form>
             </View>
-
-            <Form initialValues={initialValues} onSubmit={handleSubmit} validationSchema={schema}>
-                <FormPicker
-                    name="origin" 
-                    label='From' 
-                    placeholder='Lagos'
-                    items={[]}
-                    width="100%"
-                />
-                
-                <FormPicker
-                    name="destination" 
-                    label='To' 
-                    placeholder='Benin'
-                    items={[]}
-                    width="100%"
-                />
-
-                <FormField 
-                    name="price" 
-                    label='Price of trip' 
-                    placeholder='Enter price'
-                    keyboardType='numeric'
-                />
-
-                <View style={{ marginBottom: 18 }}>
-                    <FormCheckBox name="isRoundTrip">
-                        <Text style={styles.roundTrip}>Check the box if price is round trip</Text>
-                    </FormCheckBox>
-                </View>
-
-                <View style={styles.row}>
-                    <View style={styles.flex}>
-                        <FormMultiPicker
-                            name="departureDates" 
-                            label='Departure dates' 
-                            placeholder='Select dates'
-                            items={dates}
-                            width="100%"
-                        />
-                    </View>
-                   
-                    <View style={styles.flex}>
-                        <FormMultiPicker
-                            name="returnDates" 
-                            label='Return dates' 
-                            placeholder='Select dates'
-                            items={dates}
-                            width="100%"
-                        />
-                    </View>
-                </View>
-                
-                <View style={styles.row}>
-                    <View style={styles.flex}>
-                        <FormPicker
-                            name="departureTime" 
-                            label='Departure time' 
-                            placeholder='Select time'
-                            items={times}
-                            width="100%"
-                        />
-                    </View>
-                   
-                    <View style={styles.flex}>
-                        <FormPicker
-                            name="returnTime" 
-                            label='Return time' 
-                            placeholder='Select time'
-                            items={times}
-                            width="100%"
-                        />
-                    </View>
-                </View>
-
-                <FormPicker
-                    name="busType" 
-                    label='Bus type' 
-                    placeholder='Select bus type'
-                    items={[]}
-                    width="100%"
-                />
-                
-                <FormPicker
-                    name="busCapacity" 
-                    label='Bus capacity' 
-                    placeholder='Select bus capacity'
-                    items={capacities}
-                    width="100%"
-                />
-
-                <FormMultiCheckBox name="airConditioning" options={airConditioningOptions} />
-
-                <View style={styles.buttonContainer}>
-                    <SubmitButton label="List Bus Trip" />
-                </View>
-            </Form>
         </>
     );
 };
 
 const styles = StyleSheet.create({
     buttonContainer: { marginTop: 14 },
+    content: {
+        flex: 1,
+        paddingHorizontal: 23,
+        paddingBottom: 20,
+    },
     description: { 
         textAlign: 'center', 
         fontSize: 10, 
@@ -259,11 +308,11 @@ const dates: PickerItemModel[] = [
 const airConditioningOptions: PickerItemModel[] = [
     {
         label: 'AC',
-        value: 0
+        value: 1
     },
     {
         label: 'NO-AC',
-        value: 1
+        value: 0
     },
 ];
 

@@ -4,16 +4,19 @@ import { serviceApi } from './api/services';
 
 import authReducer from '@/store/auth/slice';
 import { authApi } from './api/auth';
+import { onboardingApi } from './api/onboarding';
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     [authApi.reducerPath]: authApi.reducer,
     [serviceApi.reducerPath]: serviceApi.reducer,
+    [onboardingApi.reducerPath]: onboardingApi.reducer,
   },
   middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat([
-    serviceApi.middleware,
     authApi.middleware,
+    onboardingApi.middleware,
+    serviceApi.middleware,
   ]),
 });
 

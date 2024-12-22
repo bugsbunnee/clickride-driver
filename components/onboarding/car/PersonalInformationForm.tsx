@@ -8,16 +8,17 @@ import { FormikHelpers } from "formik";
 
 import * as yup from 'yup';
 
-import { PickerItemModel } from '@/utils/models';
+import { CarPersonalInformation, PickerItemModel } from '@/utils/models';
 import { Form, FormCheckBox, FormError, FormField, FormPicker, SubmitButton } from '@/components/forms';
 import { ActivityIndicator, Text } from "@/components/ui";
 import { colors, styles as defaultStyles } from '@/constants'
 import { MIN_VEHICLE_YEAR } from "@/constants/app";
 import { MANUFACTURERS } from "@/utils/data";
 import { useAppSelector } from "@/store/hooks";
-import { useUpdatePersonalInformationMutation } from "@/store/api/onboarding";
+import { useUpdateCarPersonalInformationMutation } from "@/store/api/onboarding";
 import { getFieldErrorsFromError, getMessageFromError } from "@/utils/lib";
 
+import storage from "@/utils/storage";
 
 interface FormValues {
     firstName: string;
@@ -28,10 +29,6 @@ interface FormValues {
     vehicleYear: PickerItemModel | null;
     vehicleColor: PickerItemModel | null;
     vehicleLicensePlate: string;
-}
-
-interface Props {
-    onFinishStep: () => void;
 }
 
 const schema = yup.object<FormValues>().shape({
@@ -57,22 +54,24 @@ const schema = yup.object<FormValues>().shape({
     vehicleLicensePlate: yup.string().length(6).required().label('Vehicle License Plate')
 });
 
-const PersonalInformationForm: React.FC<Props> = ({ onFinishStep }) => {
+const PersonalInformationForm: React.FC = () => {
     const { account }= useAppSelector((state) => state.auth);
-    const [updatePersonalInformation, result] = useUpdatePersonalInformationMutation()
+    const [updatePersonalInformation, { isLoading, error }] = useUpdateCarPersonalInformationMutation();
 
     const initialValues: FormValues = useMemo(() => {
+        const personalInformation = account?.profile?.personalInformation as CarPersonalInformation;
+
         return {
-            firstName: '',
-            lastName: '',
+            firstName: account?.user?.firstName ?? '',
+            lastName: account?.user?.lastName ?? '',
             gender: null,
-            isVehicleOwner: false,
+            isVehicleOwner: personalInformation?.isVehicleOwner ?? false,
             vehicleManufacturer: null,
             vehicleYear: null,
             vehicleColor: null,
-            vehicleLicensePlate: '',
+            vehicleLicensePlate: personalInformation?.vehicleLicensePlate ?? '',
         };
-    }, []);
+    }, [account]);
 
     const handleSubmit = useCallback(async (personalInformation: FormValues, helpers: FormikHelpers<FormValues>) => {
         const payload = {
@@ -88,101 +87,103 @@ const PersonalInformationForm: React.FC<Props> = ({ onFinishStep }) => {
         };
 
         try {
-            await updatePersonalInformation(payload).unwrap();
-            onFinishStep();
+            const response = await updatePersonalInformation(payload).unwrap();
+            storage.storeSession(response);
         } catch (error) {
             const fieldErrors = getFieldErrorsFromError(error);
             if (fieldErrors) helpers.setErrors(fieldErrors);
         }
-    }, [onFinishStep]);
+    }, [updatePersonalInformation]);
 
     return ( 
         <>
-            <ActivityIndicator visible={result.isLoading} />
+            <ActivityIndicator visible={isLoading} />
             
-            <View style={styles.titleContainer}>
-                <Text style={styles.title}>Personal Information and Vehicle Details</Text>
-                <Text style={styles.description}>Only your first name are visible to clients during bookings</Text>
-            </View>
+            <View style={styles.content}>
+                <View style={styles.titleContainer}>
+                    <Text style={styles.title}>Personal Information and Vehicle Details</Text>
+                    <Text style={styles.description}>Only your first name are visible to clients during bookings</Text>
+                </View>
 
-            <Form initialValues={initialValues} onSubmit={handleSubmit} validationSchema={schema}>
-                <FormField 
-                    autoCapitalize="none" 
-                    icon='user' 
-                    name="firstName" 
-                    label='First name' 
-                    placeholder='Enter your first name'
-                    keyboardType='name-phone-pad'
-                />
+                <Form initialValues={initialValues} onSubmit={handleSubmit} validationSchema={schema}>
+                    <FormField 
+                        autoCapitalize="none" 
+                        icon='user' 
+                        name="firstName" 
+                        label='First name' 
+                        placeholder='Enter your first name'
+                        keyboardType='name-phone-pad'
+                    />
 
-                <FormField 
-                    autoCapitalize="none" 
-                    icon='user' 
-                    name="lastName" 
-                    label='Last name' 
-                    placeholder='Enter your last name'
-                    keyboardType='name-phone-pad'
-                />
-                
-                <FormPicker
-                    label='Gender'
-                    name="gender" 
-                    placeholder="Select gender"
-                    items={genders}
-                    width="100%"
-                />
-
-                <View style={styles.bottomMargin}>
-                    <FormCheckBox name="isVehicleOwner">
-                        <Text style={styles.small}>I have a vehicle to drive. </Text>
-                        <Text style={[styles.small, { color: colors.light.black, marginTop: 9 }]}>
-                            Have multiple vehicles? <Link href='/' style={[styles.small, { color: colors.light.primary }]}>Sign up as fleet owner</Link>
-                        </Text>
-                    </FormCheckBox>
+                    <FormField 
+                        autoCapitalize="none" 
+                        icon='user' 
+                        name="lastName" 
+                        label='Last name' 
+                        placeholder='Enter your last name'
+                        keyboardType='name-phone-pad'
+                    />
                     
-                </View>
-                
-                <FormPicker
-                    label='Vehicle manufacturer'
-                    name="vehicleManufacturer" 
-                    placeholder="Select manufacturer"
-                    items={manufacturers}
-                    width="100%"
-                />
+                    <FormPicker
+                        label='Gender'
+                        name="gender" 
+                        placeholder="Select gender"
+                        items={genders}
+                        width="100%"
+                    />
 
-                <Text style={[styles.small, styles.bottomMargin]}>
-                    If your vehicle is not on the list, kindly reach out at <Text style={[styles.small, { color: colors.light.primary }]}>info@clickride.com</Text>
-                </Text>
-                
-                <FormPicker
-                    label='Vehicle color'
-                    name="vehicleColor" 
-                    placeholder="Select color"
-                    items={vehicleColors}
-                    width="100%"
-                />
-            
-                <FormPicker
-                    label='Vehicle year'
-                    name="vehicleYear" 
-                    placeholder="Select year"
-                    items={years}
-                    width="100%"
-                />
+                    <View style={styles.bottomMargin}>
+                        <FormCheckBox name="isVehicleOwner">
+                            <Text style={styles.small}>I have a vehicle to drive. </Text>
+                            <Text style={[styles.small, { color: colors.light.black, marginTop: 9 }]}>
+                                Have multiple vehicles? <Link href='/' style={[styles.small, { color: colors.light.primary }]}>Sign up as fleet owner</Link>
+                            </Text>
+                        </FormCheckBox>
+                        
+                    </View>
+                    
+                    <FormPicker
+                        label='Vehicle manufacturer'
+                        name="vehicleManufacturer" 
+                        placeholder="Select manufacturer"
+                        items={manufacturers}
+                        width="100%"
+                    />
 
-                <FormField 
-                    name="vehicleLicensePlate" 
-                    label='License plate' 
-                    placeholder="777 777 1234"
-                    maxLength={6}
-                />
-
-                <FormError error={getMessageFromError(result.error)} />
+                    <Text style={[styles.small, styles.bottomMargin]}>
+                        If your vehicle is not on the list, kindly reach out at <Text style={[styles.small, { color: colors.light.primary }]}>info@clickride.com</Text>
+                    </Text>
+                    
+                    <FormPicker
+                        label='Vehicle color'
+                        name="vehicleColor" 
+                        placeholder="Select color"
+                        items={vehicleColors}
+                        width="100%"
+                    />
                 
-                <View style={styles.buttonContainer}>
-                    <SubmitButton label="Next" />
-                </View>
-            </Form>
+                    <FormPicker
+                        label='Vehicle year'
+                        name="vehicleYear" 
+                        placeholder="Select year"
+                        items={years}
+                        width="100%"
+                    />
+
+                    <FormField 
+                        name="vehicleLicensePlate" 
+                        label='License plate' 
+                        placeholder="777 777 1234"
+                        maxLength={6}
+                    />
+
+                    <FormError error={getMessageFromError(error)} />
+                    
+                    <View style={styles.buttonContainer}>
+                        <SubmitButton label="Next" />
+                    </View>
+                </Form>
+            </View>
         </>
     );
 };
@@ -190,6 +191,11 @@ const PersonalInformationForm: React.FC<Props> = ({ onFinishStep }) => {
 const styles = StyleSheet.create({
     buttonContainer: { marginTop: 14 },
     bottomMargin: { marginBottom: 16 },
+    content: {
+        flex: 1,
+        paddingHorizontal: 23,
+        paddingBottom: 20,
+    },
     description: { 
         textAlign: 'center', 
         fontSize: 10, 
@@ -234,11 +240,11 @@ const styles = StyleSheet.create({
 const genders = [
     {
         label: 'Male',
-        value: 'male',
+        value: 'Male',
     },
     {
         label: 'Female',
-        value: 'female'
+        value: 'Female'
     }
 ];
 

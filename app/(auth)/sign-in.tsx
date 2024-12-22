@@ -12,7 +12,7 @@ import { colors, icons, styles as defaultStyles } from '@/constants'
 import { Form, FormError, FormField, SubmitButton } from '@/components/forms';
 import { ActivityIndicator, Image, Text } from '@/components/ui';
 import { useLoginMutation } from '@/store/api/auth';
-import { getFieldErrorsFromError, getMessageFromError } from '@/utils/lib';
+import { getFieldErrorsFromError, getMessageFromError, getNextRoute } from '@/utils/lib';
 
 import storage from '@/utils/storage';
 
@@ -35,7 +35,7 @@ const SignInPage: React.FC = () => {
         try {
             const result = await login(credentials).unwrap();
             storage.storeSession(result);
-            router.push('/location');
+            router.push(getNextRoute());
         } catch (error) {
             const fieldErrors = getFieldErrorsFromError(error);
             if (fieldErrors) helpers.setErrors(fieldErrors);

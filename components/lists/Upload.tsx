@@ -8,17 +8,18 @@ import { Image, Text } from '@/components/ui';
 import { colors, icons, styles as defaultStyles } from '@/constants';
 import { MAX_FILE_SIZE_IN_MB } from '@/constants/app';
 import { validateUploadedAssets } from '@/utils/lib';
+import { DocumentUpload } from '@/utils/models';
 
 export interface UploadProps {
     label: string;
     description: string;
-    imageUris: string[];
+    imageUris: DocumentUpload[];
     supportedMimeTypes?: string[];
-    onAddImage: (imageUri: string) => void;
+    onAddImage: (image: DocumentUpload) => void;
     onRemoveImage: (imageUri: string) => void;
 }
 
-const Upload: React.FC<UploadProps> = ({ description, label, imageUris, supportedMimeTypes = [], onAddImage, onRemoveImage }) => {
+const Upload: React.FC<UploadProps> = ({ description, label, imageUris, supportedMimeTypes = ['image/jpeg', 'image/png'], onAddImage, onRemoveImage }) => {
     const scrollView = useRef<ScrollView>(null);
 
     useEffect(() => {
@@ -48,7 +49,13 @@ const Upload: React.FC<UploadProps> = ({ description, label, imageUris, supporte
 
             if (!result.canceled) {
                 const isValid = validateUploadedAssets(result.assets, supportedMimeTypes);
-                if (isValid) return onAddImage(result.assets[0].uri);
+                if (isValid) {
+                    return onAddImage({
+                        name: result.assets[0].fileName,
+                        type: result.assets[0].mimeType,
+                        uri: result.assets[0].uri,
+                    });
+                }
                 
                 Alert.alert("Error", `File size must be under ${MAX_FILE_SIZE_IN_MB}MB, and one of ${supportedMimeTypes.join(', ')}`);
             }
@@ -87,10 +94,10 @@ const Upload: React.FC<UploadProps> = ({ description, label, imageUris, supporte
                 onContentSizeChange={() => scrollView.current?.scrollToEnd()}
             >
                 <View style={styles.list}>
-                    {imageUris.map((uri) => (
-                        <TouchableOpacity key={uri} style={styles.preview} onPress={() => removeImage(uri)}>
+                    {imageUris.map((image) => (
+                        <TouchableOpacity key={image.uri} style={styles.preview} onPress={() => removeImage(image.uri)}>
                             <View style={styles.imageContainer}>
-                                <Image src={uri} style={styles.image} />
+                                <Image src={image.uri} style={styles.image} />
                             </View>
                             
                             <View style={styles.delete}>

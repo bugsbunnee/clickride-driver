@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import _ from 'lodash';
 
 import { StyleSheet, View, TouchableOpacity, useWindowDimensions } from 'react-native';
@@ -9,29 +9,53 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import { colors, icons, styles as defaultStyles } from '@/constants'
 import { Image } from '@/components/ui';
+import { useAppSelector } from '@/store/hooks';
 
 import PersonalInformationForm from '@/components/onboarding/bus/PersonalInformationForm';
 import PaymentDetailsForm from '@/components/onboarding/car/PaymentDetailsForm';
 import TripDetailsForm from '@/components/onboarding/bus/TripDetailsForm';
 
-const STEPS ={
-    MIN: 1,
-    MAX: 3,
+const KEYS = {
+    personalInformation: 'personal-information',
+    tripDetails: 'trip-details',
+    paymentDetails: 'payment-details',
 };
 
 const BusPage: React.FC = () => {
-    const [currentStep, setCurrentStep] = useState(STEPS.MIN);
+    const [currentStep, setCurrentStep] = useState(KEYS.personalInformation);
 
+    const { account } = useAppSelector((state) => state.auth);
     const { height } = useWindowDimensions();
     const { top } = useSafeAreaInsets();
-    
-    const handleIncrementStep = useCallback(() => {
-        setCurrentStep((previousValue) =>  {
-            const nextStep = previousValue + 1;
-            return nextStep <= STEPS.MAX ? nextStep : previousValue;
-        });
+
+    const Steps = useMemo(() => {
+        return {
+            [KEYS.personalInformation]: <PersonalInformationForm />,
+            [KEYS.tripDetails]: <TripDetailsForm />,
+            [KEYS.paymentDetails]: <PaymentDetailsForm />,
+        }
     }, []);
 
+    useEffect(() => {
+        function determineNextStep() {
+            if (!account || !account.profile || !account.profile.personalInformation) {
+                return setCurrentStep(KEYS.personalInformation);
+            }
+
+            if (!account.profile.tripDetails) {
+                return setCurrentStep(KEYS.tripDetails);
+            }
+
+            if (!account.profile.paymentDetails) {
+                return setCurrentStep(KEYS.paymentDetails);
+            }
+
+            router.push('/location');
+        }
+
+        determineNextStep();
+    }, [account]);
+    
     return (
         <View style={styles.container}>
             <KeyboardAwareScrollView>
@@ -53,7 +77,7 @@ const BusPage: React.FC = () => {
                 <View style={styles.content}>
                     <View style={[styles.form, defaultStyles.shadow]}>
                         <View style={styles.steps}>
-                            {_.range(STEPS.MIN, STEPS.MAX + 1).map((step) => (
+                            {Object.keys(Steps).map((step) => (
                                 <View
                                     key={step} 
                                     style={[styles.step, { backgroundColor: step === currentStep ? colors.light.primary : colors.light.dewDark }]} 
@@ -61,9 +85,7 @@ const BusPage: React.FC = () => {
                             ))}
                         </View>
 
-                        {currentStep === STEPS.MIN && <PersonalInformationForm onFinishStep={handleIncrementStep} />}
-                        {currentStep === 2 && <TripDetailsForm onFinishStep={handleIncrementStep} />}
-                        {currentStep === STEPS.MAX && <PaymentDetailsForm buttonLabel='Submit' onFinishStep={handleIncrementStep} />}
+                        {Steps[currentStep]}
                     </View>
                 </View>
             </KeyboardAwareScrollView>
@@ -82,12 +104,12 @@ const styles = StyleSheet.create({
         backgroundColor: colors.light.white,
         borderWidth: 1,
         borderColor: 'rgba(224, 224, 224, 0.62)',
-        paddingHorizontal: 23,
-        paddingVertical: 20,
         borderRadius: 20,
+        paddingTop: 20,
         zIndex: 1000000,
         elevation: 4,
-        marginTop: '-75%'
+        marginTop: '-75%',
+        overflow: 'hidden'
     },
     imageContainer: { 
         overflow: 'hidden', 

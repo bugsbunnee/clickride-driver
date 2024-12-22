@@ -1,15 +1,14 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { View, StyleSheet, TouchableWithoutFeedback, Modal,  FlatList, DimensionValue } from "react-native";
-import { FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
+import { FontAwesome } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BottomSheetModal, BottomSheetModalProvider, BottomSheetScrollView, BottomSheetView } from '@gorhom/bottom-sheet';
 
-import { Button, Text } from "@/components/ui";
+import { Button, Text, TextInput } from "@/components/ui";
 import { colors, icons, styles as defaultStyles } from '@/constants';
 import { PickerItemModel } from "@/utils/models";
 
 import PickerItem from "@/components/lists/PickerItem";
-import Screen from "../ui/Screen";
 
 export interface PickerProps {
     label: string;
@@ -31,6 +30,8 @@ const Picker: React.FC<PickerProps> = ({
   width = "100%",
 }) => {
   const [isVisible, setVisible] = useState(false);
+  const [query, setQuery] = useState('');
+
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const insets = useSafeAreaInsets();
 
@@ -45,6 +46,10 @@ const Picker: React.FC<PickerProps> = ({
         bottomSheetModalRef.current.dismiss();
     }
   }, []);
+
+  const filteredItems = useMemo(() => {
+    return items.filter((item) => item.value.toString().toLowerCase().includes(query.toLowerCase()));
+  }, [query, items]);
 
   useEffect(() => {
     if (isVisible) handleOpenSheet();
@@ -82,18 +87,26 @@ const Picker: React.FC<PickerProps> = ({
                   enablePanDownToClose={false} 
                   enableDynamicSizing={false} 
                   index={0} 
-                  snapPoints={['50%']}
+                  snapPoints={['75%']}
                 >
+                    <BottomSheetView style={styles.content}>
+                      <TextInput
+                        icon="magnifier"
+                        placeholder="Enter item to search"
+                        onChangeText={(text) => setQuery(text)}
+                        value={query}
+                        showClearOption
+                      />
+                    </BottomSheetView>
+
                     <BottomSheetScrollView style={styles.content}>
-                      {items.map((item) => (
+                      {filteredItems.map((item) => (
                         <PickerItemComponent
                           isActive={item.value === selectedItem?.value}
                           item={item}
                           key={item.value}
                           label={item.label}
-                          onPress={() => {
-                            onSelectItem(item);
-                          }}
+                          onPress={() => onSelectItem(item)}
                         />
                       ))}
                     </BottomSheetScrollView> 

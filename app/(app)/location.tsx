@@ -5,15 +5,19 @@ import { StyleSheet, TouchableOpacity, useWindowDimensions, View } from "react-n
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import LocationSwitch from "@/components/maps/LocationSwitch";
+import useLocation from "@/hooks/useLocation";
 
 import { Button, Text } from "@/components/ui";
 import { colors, icons, styles as defaultStyles } from "@/constants";
-import useLocation from "@/hooks/useLocation";
+import { useAppDispatch } from "@/store/hooks";
+import { logout } from "@/store/auth/slice";
 
 const LocationPage = () => {
     const { granted } = useLocation();
     const { width } = useWindowDimensions();
     const { top: paddingTop, bottom: paddingBottom } = useSafeAreaInsets();
+
+    const d = useAppDispatch();
 
     return ( 
         <View style={[styles.flex, { paddingTop, paddingBottom }]}>
@@ -54,7 +58,8 @@ const LocationPage = () => {
                 <Button 
                     disabled={!granted}
                     label="Continue" 
-                    onPress={() => router.push('/incoming-ride')} 
+                    onPress={() => d(logout())} 
+                    // onPress={() => router.push('/incoming-ride')} 
                 />
             </ImageBackground>
         </View>

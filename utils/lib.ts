@@ -9,7 +9,8 @@ import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 
-import { BYTE_SIZE_IN_MB, CURRENCY, MAX_FILE_SIZE_IN_MB } from "@/constants/app";
+import { BYTE_SIZE_IN_MB, CURRENCY, MAX_FILE_SIZE_IN_MB, Service } from "@/constants/app";
+import { store } from "@/store";
 import { ApiFormError } from "./models";
 
 dayjs.extend(duration);
@@ -80,6 +81,28 @@ export const getMessageFromError = (error: any) => {
     }
 
     return '';
+};
+
+export const getNextRoute = () => {
+    const { account } = store.getState().auth;
+
+    if (!account) {
+        return '/(auth)';
+    }
+
+    if (account.service === Service.Car) {
+        if (!account.profile || !account.profile.personalInformation || !account.profile.vehicleDocuments || !account.profile.paymentDetails || !account.profile.inspectionUrl) {
+            return account.service as any;
+        }
+    }
+
+    if (account.service === Service.Bus) {
+        if (!account.profile || !account.profile.personalInformation || !account.profile.tripDetails || !account.profile.paymentDetails) {
+            return account.service as any;
+        }
+    }
+    
+    return '/location';
 };
 
 export const parseTime = (time: string, format: dayjs.OptionType) => {

@@ -1,4 +1,4 @@
-import { Account, Profile, User } from '@/utils/models';
+import { Account, AuthResponse, Profile, User } from '@/utils/models';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 interface Credentials {
@@ -12,11 +12,6 @@ interface NewUser {
     city: string;
     service: string;
     password: string;
-}
-
-interface AuthResponse {
-    token: string;
-    account: Account
 }
 
 export const authApi = createApi({

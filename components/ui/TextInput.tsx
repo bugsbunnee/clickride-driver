@@ -11,6 +11,7 @@ import Text from './Text';
 export interface AppTextInputProps extends TextInputProps {
 	icon?: string;
 	width?: DimensionValue;
+	showClearOption?: boolean;
 	label?: string;
 	error?: string;
 	tip?: string;
@@ -18,6 +19,7 @@ export interface AppTextInputProps extends TextInputProps {
 
 const AppTextInput: React.FC<AppTextInputProps> = ({
 	width = '100%',
+	showClearOption = false,
 	error,
 	label,
 	icon,
@@ -80,6 +82,15 @@ const AppTextInput: React.FC<AppTextInputProps> = ({
 						<Octicons 
 							name={isVisible ? 'eye' : 'eye-closed'}
 							size={icons.SIZES.NORMAL} 
+							color={colors.light.black} />
+					</TouchableOpacity>
+				)}
+				
+				{otherProps.value && showClearOption && (
+					<TouchableOpacity style={styles.iconContainer} onPress={() => otherProps?.onChangeText?.('')}>
+						<Octicons 
+							name='x-circle'
+							size={icons.SIZES.SMALL} 
 							color={colors.light.black} />
 					</TouchableOpacity>
 				)}

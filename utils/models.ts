@@ -1,3 +1,14 @@
+export interface AuthResponse {
+    token: string;
+    account: Account
+}
+
+export interface DocumentUpload {
+    name?: string | null;
+    type?: string;
+    uri: string;
+}
+
 export interface Coordinates {
     latitude: number;
     longitude: number;
@@ -16,8 +27,52 @@ export interface PaymentDetails {
     bankName:string;
 }
 
+export interface VehicleDocuments {
+    license: string;
+    display: string;
+    interior: string;
+    exterior: string;
+    ownership: string;
+    roadWorthiness: string;
+    insurance: string;
+    lasrra: string;
+    lasdri: string;
+}
+
+export interface CarPersonalInformation {
+    gender: string;
+    isVehicleOwner: boolean;
+    vehicleManufacturer: string;
+    vehicleYear: number;
+    vehicleColor: string;
+    vehicleLicensePlate: string;
+}
+
+export interface BusPersonalInformation {
+    companyName: string;
+    companyLogo: string;
+}
+
+export interface TripDetails {
+    origin: string;
+    destination: string;
+    price: number;
+    isRoundTrip: boolean;
+    departureDates: number[];
+    departureTime: string;
+    returnDates: number[];
+    returnTime: string;
+    busType: string;
+    busCapacity: number;
+    airConditioning: boolean;
+}
+
 export interface Profile {
+    personalInformation: CarPersonalInformation | BusPersonalInformation;
     paymentDetails: PaymentDetails;
+    vehicleDocuments?: VehicleDocuments;
+    tripDetails?: TripDetails;
+    inspectionUrl?: string;
 }
 
 export interface User {

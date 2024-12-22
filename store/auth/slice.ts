@@ -1,7 +1,9 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Account } from "@/utils/models";
 import { AppDispatch } from "..";
+
 import { authApi } from "../api/auth";
+import { onboardingApi } from "../api/onboarding";
+import { Account } from "@/utils/models";
 
 import storage from "@/utils/storage";
 
@@ -37,6 +39,30 @@ const authSlice = createSlice({
             state.account = action.payload.account;
         })
         .addMatcher(authApi.endpoints.register.matchFulfilled, (state, action) => {
+            state.token = action.payload.token;
+            state.account = action.payload.account;
+        })
+        .addMatcher(onboardingApi.endpoints.updateBusPersonalInformation.matchFulfilled, (state, action) => {
+            state.token = action.payload.token;
+            state.account = action.payload.account;
+        })
+        .addMatcher(onboardingApi.endpoints.updateCarPersonalInformation.matchFulfilled, (state, action) => {
+            state.token = action.payload.token;
+            state.account = action.payload.account;
+        })
+        .addMatcher(onboardingApi.endpoints.updatePaymentDetails.matchFulfilled, (state, action) => {
+            state.token = action.payload.token;
+            state.account = action.payload.account;
+        })
+        .addMatcher(onboardingApi.endpoints.updateVehicleDocuments.matchFulfilled, (state, action) => {
+            state.token = action.payload.token;
+            state.account = action.payload.account;
+        })
+        .addMatcher(onboardingApi.endpoints.updateTripDetails.matchFulfilled, (state, action) => {
+            state.token = action.payload.token;
+            state.account = action.payload.account;
+        })
+        .addMatcher(onboardingApi.endpoints.updateVehicleInspection.matchFulfilled, (state, action) => {
             state.token = action.payload.token;
             state.account = action.payload.account;
         });

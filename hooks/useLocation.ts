@@ -1,12 +1,15 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Platform } from 'react-native';
 
-import { getCoords } from '@/utils/lib';
-import { TASKS } from '@/constants/app';
-
 import * as Device from 'expo-device';
 import * as Location from 'expo-location';
 import * as TaskManager from 'expo-task-manager';
+import _ from 'lodash';
+
+import { TASKS } from '@/constants/app';
+import { getCoords } from '@/utils/lib';
+import { useUpdateLocationMutation } from '@/store/api/services';
+
 
 interface Coords extends Location.LocationObjectCoords {
   latitudeDelta: number;
@@ -21,6 +24,7 @@ interface TaskResult {
 function useLocation() {
   const [coords, setCoords] = useState<Coords>();
   const [granted, setGranted] = useState(false);
+  const [updateLocation, result] = useUpdateLocationMutation();
 
   const requestPermission = useCallback(async () => {
     if (Platform.OS === 'android' && !Device.isDevice) return;
@@ -43,9 +47,24 @@ function useLocation() {
     setGranted(true);
   }, []);
 
+  const handleLocationUpdate = useCallback(async () => {
+    if (!coords) return;
+
+    try {
+      const coordinates = _.pick(coords, ['latitude', 'longitude']);
+      await updateLocation(coordinates).unwrap();
+    } catch (error) {
+      // silent error
+    }
+  }, [coords, updateLocation]);
+
   useEffect(() => {
     requestPermission();
   }, []);
+
+  useEffect(() => {
+    handleLocationUpdate();
+  }, [handleLocationUpdate]);
 
   return { coords, granted, requestPermission };
 }

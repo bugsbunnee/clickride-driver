@@ -87,7 +87,8 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         zIndex: 1000000,
         elevation: 4,
-        marginTop: '-75%'
+        marginTop: '-75%',
+        overflow: 'hidden'
     },
     imageContainer: { 
         overflow: 'hidden', 
