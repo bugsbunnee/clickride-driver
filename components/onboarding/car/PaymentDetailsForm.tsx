@@ -18,6 +18,7 @@ interface FormValues {
 }
 
 interface Props {
+    buttonLabel?: string;
     onFinishStep: () => void;
     onPreviouStep?: () => void;
 }
@@ -36,7 +37,7 @@ const schema = yup.object<FormValues>().shape({
     }).required().label('Bank name'),
 });
 
-const PaymentDetailsForm: React.FC<Props> = ({ onFinishStep, onPreviouStep }) => {
+const PaymentDetailsForm: React.FC<Props> = ({ onFinishStep, onPreviouStep, buttonLabel = "Next" }) => {
     const initialValues: FormValues = useMemo(() => {
         return {
             billingType: null,
@@ -114,7 +115,7 @@ const PaymentDetailsForm: React.FC<Props> = ({ onFinishStep, onPreviouStep }) =>
                     )}
 
                     <View style={styles.flex}>
-                        <SubmitButton label="Next" />
+                        <SubmitButton label={buttonLabel} />
                     </View>
                 </View>
             </Form>

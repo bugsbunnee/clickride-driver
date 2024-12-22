@@ -11,8 +11,7 @@ import { colors, styles as defaultStyles } from '@/constants'
 interface FormValues {
     firstName: string;
     lastName: string;
-    companyName: string;
-    companyLogo: string[];
+    profilePhoto: string[];
 }
 
 interface Props {
@@ -22,8 +21,7 @@ interface Props {
 const schema = yup.object<FormValues>().shape({
     firstName: yup.string().min(3).required().label('First Name'),
     lastName: yup.string().min(3).required().label('Last Name'),
-    companyName: yup.string().min(3).required().label('Company Name'),
-    companyLogo: yup.array().length(1, 'Please select exactly one image').required().label('Company Logo'),
+    profilePhoto: yup.array().length(1, 'Please select exactly one image').required().label('Profile Photo'),
 });
 
 const PersonalInformationForm: React.FC<Props> = ({ onFinishStep }) => {
@@ -31,8 +29,7 @@ const PersonalInformationForm: React.FC<Props> = ({ onFinishStep }) => {
         return {
             firstName: '',
             lastName: '',
-            companyName: '',
-            companyLogo: [],
+            profilePhoto: [],
         };
     }, []);
 
@@ -65,17 +62,11 @@ const PersonalInformationForm: React.FC<Props> = ({ onFinishStep }) => {
                     keyboardType='name-phone-pad'
                 />
                
-                <FormField 
-                    autoCapitalize="none" 
-                    name="companyName" 
-                    label='Company name' 
-                    placeholder='Enter your company name'
-                />
                 
                 <FormUpload
-                    label='Company logo'
-                    description="Kindly upload company logo"
-                    name="companyLogo" 
+                    label='Profile photo'
+                    description="Kindly upload a clear passport photo of your self"
+                    name="profilePhoto" 
                     supportedMimeTypes={['image/jpeg', 'image/png']}
                 />
 

@@ -8,18 +8,27 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import * as yup from 'yup';
+import yupPassword from 'yup-password';
+import storage from '@/utils/storage';
 
 import { colors, icons, styles as defaultStyles } from '@/constants'
-import { Form, FormCheckBox, FormField, FormPicker, SubmitButton } from '@/components/forms';
-import { Image, Text } from '@/components/ui';
+import { Form, FormCheckBox, FormError, FormField, FormPicker, SubmitButton } from '@/components/forms';
+import { ActivityIndicator, Image, Text } from '@/components/ui';
 import { PickerItemModel } from '@/utils/models';
+import { useGetServicesQuery } from '@/store/api/services';
+import { useRegisterMutation } from '@/store/api/auth';
+import { FormikHelpers } from 'formik';
+import { getFieldErrorsFromError, getMessageFromError } from '@/utils/lib';
+
+yupPassword(yup);
 
 interface FormValues {
     email: string;
     phoneNumber: string;
     city: string;
-    category: PickerItemModel | null;
+    service: PickerItemModel | null;
     consent: boolean;
+    password: string;
 }
 
 const registrationSchema = yup.object<FormValues>().shape({
@@ -39,31 +48,62 @@ const registrationSchema = yup.object<FormValues>().shape({
         }
     }),
     city: yup.string().required().label('City'),
-    category: yup.object().required().label('Category'),
-    consent: yup.bool().oneOf([true], 'Terms and conditions must be accepted').label('Consent')
+    service: yup.object().required().label('Service'),
+    consent: yup.boolean().oneOf([true], 'Terms and conditions must be accepted').required().label('Consent'),
+    password: yup.string()
+            .minLowercase(1, 'Please enter at least one lowercase character')
+            .minUppercase(1, 'Please enter at least one uppercase character')
+            .minNumbers(1, 'Please enter at least one number')
+            .minSymbols(1, 'Please enter at least one special character')
+            .required()
+            .label('Password')
 });
 
 const SignUpPage: React.FC = () => {
     const { height } = useWindowDimensions();
     const { top } = useSafeAreaInsets();
 
+    const [register, { isLoading: isRegistering, error: registrationError }] = useRegisterMutation();
+    const { isLoading, data = [] } = useGetServicesQuery(undefined, {
+        refetchOnFocus: false,
+        refetchOnMountOrArgChange: false
+    });
+
     const initialValues: FormValues = useMemo(() => {
         return {
             email: '',
             phoneNumber: '',
             city: '',
-            category: null,
+            service: null,
             consent: false,
+            password: '',
         };
     }, []);
 
-    const handleSubmit = useCallback((auth: FormValues) => {
-        console.log(auth);
+    const handleSubmit = useCallback(async (user: FormValues, helpers: FormikHelpers<FormValues>) => {
+        const payload = {
+            email: user.email,
+            phoneNumber: user.phoneNumber,
+            city: user.city,
+            service: user.service!.value.toString(),
+            password: user.password
+        };
+
+        try {
+            const result = await register(payload).unwrap();
+            storage.storeSession(result); // @ts-ignore
+            router.push(result.account.service);
+        } catch (error) {
+            const fieldErrors = getFieldErrorsFromError(error);
+            if (fieldErrors) helpers.setErrors(fieldErrors);
+        }
     }, []);
 
     return (
         <View style={styles.container}>
-            <KeyboardAwareScrollView>
+            <ActivityIndicator visible={isLoading || isRegistering} />
+
+            <KeyboardAwareScrollView bounces={false}>
                 <TouchableOpacity style={[styles.navigation, { top }]} onPress={() => router.back()}>
                     <MaterialCommunityIcons 
                         name='arrow-left' 
@@ -111,11 +151,21 @@ const SignUpPage: React.FC = () => {
                             
                             <FormPicker
                                 label='I am joining Click Ride as:'
-                                name="category" 
+                                name="service" 
                                 placeholder="Car driver"
-                                items={types}
+                                items={data}
                                 width="100%"
                             />
+                            
+                            <FormField
+                                label='Password'
+                                name="password" 
+                                placeholder="Enter password"
+                                width="100%"
+                                secureTextEntry
+                            />
+
+                            <FormError error={getMessageFromError(registrationError)} />
                             
                             <FormCheckBox name="consent">
                                 <Text style={styles.text}>
@@ -126,6 +176,7 @@ const SignUpPage: React.FC = () => {
 
                                 </Text>
                             </FormCheckBox>
+
                             
                             <View style={styles.buttonContainer}>
                                 <SubmitButton label="Sign up" />
@@ -137,13 +188,6 @@ const SignUpPage: React.FC = () => {
         </View>
     );
 };
-
-const types = [
-    {
-        label: 'One',
-        value: '1',
-    }
-];
 
 const styles = StyleSheet.create({
     buttonContainer: { marginTop: 14 },

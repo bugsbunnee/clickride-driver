@@ -7,10 +7,13 @@ import { ImagePickerAsset } from "expo-image-picker";
 
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
+import customParseFormat from 'dayjs/plugin/customParseFormat';
 
 import { BYTE_SIZE_IN_MB, CURRENCY, MAX_FILE_SIZE_IN_MB } from "@/constants/app";
+import { ApiFormError } from "./models";
 
 dayjs.extend(duration);
+dayjs.extend(customParseFormat);
 
 export const formatDate = (date: string | number |  Date, format: string = 'DD MMMM YYYY, HH:mm A') => {
     return dayjs(date).format(format);
@@ -61,6 +64,27 @@ export const generateScreenshot = (view: number | React.RefObject<unknown>) => {
         format: 'png',
     })
 };
+
+export const getFieldErrorsFromError = (error: unknown) => {
+    const parsedError = error as { data: ApiFormError };
+    if (parsedError.data.fieldErrors) {
+        return parsedError.data.fieldErrors;
+    }
+
+    return null;
+};
+
+export const getMessageFromError = (error: any) => {
+    if (error && error.data && error.data.message) {
+        return error.data.message;
+    }
+
+    return '';
+};
+
+export const parseTime = (time: string, format: dayjs.OptionType) => {
+    return dayjs(time, format);
+}
 
 export const sendLocalNotification = (content: NotificationContentInput) => {
     scheduleNotificationAsync({ content, trigger: null });

@@ -1,20 +1,23 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { User } from "@/utils/models";
+import { Account } from "@/utils/models";
 import { AppDispatch } from "..";
+import { authApi } from "../api/auth";
 
 import storage from "@/utils/storage";
 
 interface AuthState {
     error: string;
     isAuthenticating: boolean;
-    user: User | null;
+    token: string;
+    account: Account | null;
 }
 
 const initialState: AuthState = {
     error: '',
     isAuthenticating: true,
-    user: null,
-}
+    token: '',
+    account: null,
+};
 
 const authSlice = createSlice({
     name: 'auth',
@@ -23,16 +26,27 @@ const authSlice = createSlice({
         setAuthenticating: (state, action: PayloadAction<boolean>) => {
             state.isAuthenticating = action.payload
         },
-        setUser: (state, action: PayloadAction<User | null>) => {
-            state.user = action.payload;
+        setSession: (state, action: PayloadAction<Pick<AuthState, 'account' | 'token'>>) => {
+            state.token = action.payload.token;
+            state.account = action.payload.account;
         }
     },
+    extraReducers: (builder) => {
+        builder.addMatcher(authApi.endpoints.login.matchFulfilled, (state, action) => {
+            state.token = action.payload.token;
+            state.account = action.payload.account;
+        })
+        .addMatcher(authApi.endpoints.register.matchFulfilled, (state, action) => {
+            state.token = action.payload.token;
+            state.account = action.payload.account;
+        });
+    }
 });
 
 export const logout = () => async (dispatch: AppDispatch) => {
-    dispatch(setUser(null));
-    await storage.removeUser();
+    dispatch(setSession({ account: null, token: '' }));
+    await storage.removeSession();
 };
 
-export const { setAuthenticating, setUser } = authSlice.actions;
+export const { setAuthenticating, setSession } = authSlice.actions;
 export default authSlice.reducer;

@@ -11,8 +11,8 @@ const AuthLayout = () => {
         return <Splash onDone={() => dispatch(setAuthenticating(false))} />;
     }
 
-    if (auth.user) {
-        return <Redirect href='/' />
+    if (auth.account) {
+        return <Redirect href='/location' />
     }
 
     return ( 

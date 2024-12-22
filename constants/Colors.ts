@@ -12,7 +12,7 @@ export const APP_COLORS = {
   BORDER_LIGHT: '#F2F2F2',
   BORDER_MID: '#B7B7B7',
   DANGER: '#A80000',
-  DANGER_LIGHT: '#F2D6D7',
+  DANGER_LIGHT: '#f5e9e9',
   DEW: '#F5F5F5',
   DEW_MID: '#f7f8fa',
   DEW_DARK: '#D9D9D9',

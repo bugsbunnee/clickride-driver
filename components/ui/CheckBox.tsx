@@ -45,8 +45,12 @@ const styles = StyleSheet.create({
         alignItems: 'flex-start',
         justifyContent: 'flex-start',
         gap: 9,
+        flex: 1
     },
-    flex: { flex: 1, marginTop: -4 },
+    flex: { 
+        flex: 1, 
+        marginTop: -4,
+    },
 });
 
 export default CheckBox;

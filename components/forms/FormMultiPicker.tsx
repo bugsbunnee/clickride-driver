@@ -2,16 +2,16 @@ import React, { useCallback } from "react";
 import _ from "lodash";
 
 import { useFormikContext } from "formik";
-
-import Picker, { PickerProps } from "../lists/Picker";
-import ErrorMessage from '@/components/forms/ErrorMessage';
 import { PickerItemModel } from "@/utils/models";
 
-interface Props extends Omit<PickerProps, 'onSelectItem' | 'selectedItem'> {
+import MultiPicker, { MultiPickerProps } from "../lists/MultiPicker";
+import ErrorMessage from '@/components/forms/ErrorMessage';
+
+interface Props extends Omit<MultiPickerProps, 'onSelectItem' | 'selectedItems'> {
   name: string;
 }
 
-const AppFormPicker: React.FC<Props> = ({
+const AppFormMultiPicker: React.FC<Props> = ({
   items,
   name,
   label,
@@ -20,21 +20,24 @@ const AppFormPicker: React.FC<Props> = ({
   width,
 }) => {
   const { errors, setFieldValue, setFieldTouched, touched, values } = useFormikContext();
+  const value: PickerItemModel[] = _.get(values, name);
 
-  const handleItemSelect = useCallback((item: PickerItemModel) => {
+  const handleToggleItem = useCallback((item: PickerItemModel) => {
     setFieldTouched(name);
-    setFieldValue(name, item);
-  }, []);
+
+    if (value.includes(item)) setFieldValue(name, value.filter((option) => option.value !== item.value));
+    else setFieldValue(name, [...value, item]);
+  }, [value]);
 
   return (
     <>
-      <Picker
+      <MultiPicker
         label={label}
         items={items}
-        onSelectItem={handleItemSelect}
+        onSelectItem={handleToggleItem}
         PickerItemComponent={PickerItemComponent}
         placeholder={placeholder}
-        selectedItem={_.get(values, name)}
+        selectedItems={_.get(values, name)}
         width={width}
       />
 
@@ -46,4 +49,4 @@ const AppFormPicker: React.FC<Props> = ({
   );
 }
 
-export default AppFormPicker;
+export default AppFormMultiPicker;

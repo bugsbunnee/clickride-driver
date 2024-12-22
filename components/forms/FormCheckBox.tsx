@@ -16,8 +16,7 @@ const FormField: React.FC<Props> = ({ name,  ...otherProps }) => {
     const value = _.get(values, name);
 
     const handleFieldChange = useCallback(() => {
-        setFieldValue(name, !value, true);
-        setFieldTouched(name);
+        setFieldValue(name, !value);
     }, [value]);
 
 	return (

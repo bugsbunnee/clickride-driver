@@ -1,17 +1,22 @@
 import * as SecureStore from 'expo-secure-store';
-import { User } from './models';
+import { Account } from './models';
 
 const key = "click-ride-user";
 
-const storeUser = async (user: User) => {
+interface Session {
+    account: Account;
+    token: string;
+}
+
+const storeSession = async (session: Session) => {
     try {
-        await SecureStore.setItemAsync(key, JSON.stringify(user));
+        await SecureStore.setItemAsync(key, JSON.stringify(session));
     } catch (error) {
         console.log('Error storing the user', error);
     }
 };
 
-const retrieveUser = async () => {
+const getSession = async () => {
     try {
         const user =  await SecureStore.getItemAsync(key);
         if (user) return JSON.parse(user);
@@ -22,7 +27,7 @@ const retrieveUser = async () => {
     }
 };
 
-const removeUser = async () => {
+const removeSession = async () => {
     try {
         return await SecureStore.deleteItemAsync(key);
     } catch (error) {
@@ -30,5 +35,5 @@ const removeUser = async () => {
     }
 };
 
-export default { storeUser, retrieveUser, removeUser };
+export default { storeSession, getSession, removeSession };
 

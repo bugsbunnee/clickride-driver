@@ -104,17 +104,17 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 16,
 	},
 	containerMargin: {
-		marginBottom: 25,
+		marginBottom: 18,
 	},
 	iconContainer: {
 		marginRight: 10,
 	},
 	label: {
 		color: colors.light.dark,
-		fontSize: 17,
+		fontSize: 15,
 		lineHeight: 24,
 		marginBottom: 6,
-		fontFamily: defaultStyles.jakartaBold.fontFamily,
+		fontFamily: defaultStyles.jakartaSemibold.fontFamily,
 	},
 	text: {
 		color: colors.light.dark,

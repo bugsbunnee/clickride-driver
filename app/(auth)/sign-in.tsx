@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-
+import { FormikHelpers } from 'formik';
 import { StyleSheet, View, TouchableOpacity, useWindowDimensions } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -9,10 +9,12 @@ import { router } from 'expo-router';
 import * as yup from 'yup';
 
 import { colors, icons, styles as defaultStyles } from '@/constants'
-import { Form, FormField, SubmitButton } from '@/components/forms';
-import { Image, Text } from '@/components/ui';
-import { useAppDispatch } from '@/store/hooks';
-import { setUser } from '@/store/auth/slice';
+import { Form, FormError, FormField, SubmitButton } from '@/components/forms';
+import { ActivityIndicator, Image, Text } from '@/components/ui';
+import { useLoginMutation } from '@/store/api/auth';
+import { getFieldErrorsFromError, getMessageFromError } from '@/utils/lib';
+
+import storage from '@/utils/storage';
 
 interface FormValues {
     email: string;
@@ -27,13 +29,18 @@ const authSchema = yup.object<FormValues>().shape({
 const SignInPage: React.FC = () => {
     const { height } = useWindowDimensions();
     const { top } = useSafeAreaInsets();
+    const [login, { isLoading, error }] = useLoginMutation();
 
-    const dispatch = useAppDispatch();
-
-    const handleSubmit = useCallback((auth: FormValues) => {
-        dispatch(setUser({ name: 'Chuks', email: auth.email }));
-        router.push('/bus');
-    }, [dispatch]);
+    const handleSubmit = useCallback(async (credentials: FormValues, helpers: FormikHelpers<FormValues>) => {
+        try {
+            const result = await login(credentials).unwrap();
+            storage.storeSession(result);
+            router.push('/location');
+        } catch (error) {
+            const fieldErrors = getFieldErrorsFromError(error);
+            if (fieldErrors) helpers.setErrors(fieldErrors);
+        }
+    }, [login]);
 
     const initialValues: FormValues = useMemo(() => {
         return {
@@ -44,6 +51,8 @@ const SignInPage: React.FC = () => {
 
     return (
         <View style={styles.container}>
+            <ActivityIndicator visible={isLoading} />
+
             <KeyboardAwareScrollView bounces={false}>
                 <TouchableOpacity style={[styles.navigation, { top }]} onPress={() => router.back()}>
                     <MaterialCommunityIcons 
@@ -83,6 +92,8 @@ const SignInPage: React.FC = () => {
                                 placeholder="Enter password"
                                 secureTextEntry
                             />
+
+                            <FormError error={getMessageFromError(error)} />
                             
                             <View style={styles.buttonContainer}>
                                 <SubmitButton label="Sign in" />

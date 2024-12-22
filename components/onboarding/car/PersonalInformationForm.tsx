@@ -4,13 +4,19 @@ import _ from "lodash";
 
 import { View, StyleSheet } from "react-native";
 import { Link } from "expo-router";
+import { FormikHelpers } from "formik";
 
 import * as yup from 'yup';
 
 import { PickerItemModel } from '@/utils/models';
-import { Form, FormCheckBox, FormField, FormPicker, SubmitButton } from '@/components/forms';
-import { Text } from "@/components/ui";
+import { Form, FormCheckBox, FormError, FormField, FormPicker, SubmitButton } from '@/components/forms';
+import { ActivityIndicator, Text } from "@/components/ui";
 import { colors, styles as defaultStyles } from '@/constants'
+import { MIN_VEHICLE_YEAR } from "@/constants/app";
+import { MANUFACTURERS } from "@/utils/data";
+import { useAppSelector } from "@/store/hooks";
+import { useUpdatePersonalInformationMutation } from "@/store/api/onboarding";
+import { getFieldErrorsFromError, getMessageFromError } from "@/utils/lib";
 
 
 interface FormValues {
@@ -39,35 +45,22 @@ const schema = yup.object<FormValues>().shape({
     vehicleManufacturer: yup.object({
         label: yup.string().required().label('Label'),
         value: yup.string().required().label('Value'),
-    }).when('isVehicleOwner', {
-        is: true,
-        then: (schema) => schema.required(),
-        otherwise: (schema) => schema.nullable()
-    }).label('Vehicle Manufacturer'),
+    }).required().label('Vehicle Manufacturer'),
     vehicleYear: yup.object({
         label: yup.string().required().label('Label'),
         value: yup.string().required().label('Value'),
-    }).when('isVehicleOwner', {
-        is: true,
-        then: (schema) => schema.required(),
-        otherwise: (schema) => schema.nullable()
-    }).label('Vehicle Year'),
+    }).required().label('Vehicle Year'),
     vehicleColor: yup.object({
         label: yup.string().required().label('Label'),
         value: yup.string().required().label('Value'),
-    }).when('isVehicleOwner', {
-        is: true,
-        then: (schema) => schema.required(),
-        otherwise: (schema) => schema.nullable()
-    }),
-    vehicleLicensePlate: yup.string().when('isVehicleOwner', {
-        is: true,
-        then: (schema: yup.StringSchema) => schema.length(6).required().label('Vehicle License Plate'),
-        otherwise: (schema: yup.StringSchema) => schema.nullable().label('Vehicle License Plate'),
-    })
+    }).required().label('Vehicle Color'),
+    vehicleLicensePlate: yup.string().length(6).required().label('Vehicle License Plate')
 });
 
 const PersonalInformationForm: React.FC<Props> = ({ onFinishStep }) => {
+    const { account }= useAppSelector((state) => state.auth);
+    const [updatePersonalInformation, result] = useUpdatePersonalInformationMutation()
+
     const initialValues: FormValues = useMemo(() => {
         return {
             firstName: '',
@@ -81,13 +74,32 @@ const PersonalInformationForm: React.FC<Props> = ({ onFinishStep }) => {
         };
     }, []);
 
-    const handleSubmit = useCallback((personalInformation: FormValues) => {
-        console.log(personalInformation);
-        onFinishStep();
+    const handleSubmit = useCallback(async (personalInformation: FormValues, helpers: FormikHelpers<FormValues>) => {
+        const payload = {
+            firstName: personalInformation.firstName,
+            lastName: personalInformation.lastName,
+            gender: personalInformation.gender!.value.toString(),
+            isVehicleOwner: personalInformation.isVehicleOwner,
+            vehicleManufacturer: personalInformation.vehicleManufacturer!.value.toString(),
+            vehicleYear: personalInformation.vehicleYear!.value as number,
+            vehicleColor: personalInformation.vehicleColor!.value.toString(),
+            vehicleLicensePlate: personalInformation.vehicleLicensePlate,
+            service: account!.service, 
+        };
+
+        try {
+            await updatePersonalInformation(payload).unwrap();
+            onFinishStep();
+        } catch (error) {
+            const fieldErrors = getFieldErrorsFromError(error);
+            if (fieldErrors) helpers.setErrors(fieldErrors);
+        }
     }, [onFinishStep]);
 
     return ( 
         <>
+            <ActivityIndicator visible={result.isLoading} />
+            
             <View style={styles.titleContainer}>
                 <Text style={styles.title}>Personal Information and Vehicle Details</Text>
                 <Text style={styles.description}>Only your first name are visible to clients during bookings</Text>
@@ -164,6 +176,8 @@ const PersonalInformationForm: React.FC<Props> = ({ onFinishStep }) => {
                     placeholder="777 777 1234"
                     maxLength={6}
                 />
+
+                <FormError error={getMessageFromError(result.error)} />
                 
                 <View style={styles.buttonContainer}>
                     <SubmitButton label="Next" />
@@ -235,16 +249,14 @@ const vehicleColors = [
     }
 ];
 
-const manufacturers = [
-    {
-        label: 'Audi',
-        value: 'audi',
-    }
-];
+const manufacturers: PickerItemModel[] = MANUFACTURERS.map((manufacturer) => ({
+    label: manufacturer,
+    value: manufacturer,
+}));
 
-const years = _.range(2000, dayjs().year() + 1).map((year) => ({
+const years = _.range(MIN_VEHICLE_YEAR, dayjs().year() + 1).map((year) => ({
     label: year.toString(),
-    value: year.toString()
+    value: year
 }));
  
 export default PersonalInformationForm;

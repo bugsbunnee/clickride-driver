@@ -10,16 +10,16 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors, icons, styles as defaultStyles } from '@/constants'
 import { Image } from '@/components/ui';
 
-import PersonalInformationForm from '@/components/onboarding/bus/PersonalInformationForm';
+import RouteDetailsForm from '@/components/onboarding/local-trip/RouteDetails';
+import PersonalInformationForm from '@/components/onboarding/local-trip/PersonalInformationForm';
 import PaymentDetailsForm from '@/components/onboarding/car/PaymentDetailsForm';
-import TripDetailsForm from '@/components/onboarding/bus/TripDetailsForm';
 
 const STEPS ={
     MIN: 1,
     MAX: 3,
 };
 
-const BusPage: React.FC = () => {
+const LocalTripPage: React.FC = () => {
     const [currentStep, setCurrentStep] = useState(STEPS.MIN);
 
     const { height } = useWindowDimensions();
@@ -45,7 +45,7 @@ const BusPage: React.FC = () => {
 
                 <View style={[styles.imageContainer, { height: height * 0.5 }]}>
                     <Image
-                        src={require('@/assets/images/bus.png')}
+                        src={require('@/assets/images/local-trip.png')}
                         style={styles.image}
                     />
                 </View>
@@ -62,7 +62,7 @@ const BusPage: React.FC = () => {
                         </View>
 
                         {currentStep === STEPS.MIN && <PersonalInformationForm onFinishStep={handleIncrementStep} />}
-                        {currentStep === 2 && <TripDetailsForm onFinishStep={handleIncrementStep} />}
+                        {currentStep === 2 && <RouteDetailsForm onFinishStep={handleIncrementStep} />}
                         {currentStep === STEPS.MAX && <PaymentDetailsForm buttonLabel='Submit' onFinishStep={handleIncrementStep} />}
                     </View>
                 </View>
@@ -120,4 +120,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default BusPage;
+export default LocalTripPage;

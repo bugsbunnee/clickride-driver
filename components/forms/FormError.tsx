@@ -31,8 +31,8 @@ const styles = StyleSheet.create({
     container: { 
         flexDirection: 'row', 
         alignItems: 'center', 
-        padding: 16, 
-        borderRadius: 5,
+        padding: 10, 
+        borderRadius: 10,
         backgroundColor: colors.light.dangerLight,
         gap: 5, 
         marginBottom: 16
@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
         fontSize: 14,
         letterSpacing: 0.25,
         color: colors.light.danger,
-        fontFamily: defaultStyles.jakartaMedium.fontFamily,
+        fontFamily: defaultStyles.urbanistMedium.fontFamily,
         flex: 1,
         alignItems: "flex-start"
     }

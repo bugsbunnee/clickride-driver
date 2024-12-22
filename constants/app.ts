@@ -18,3 +18,4 @@ export const TASKS = {
 
 export const BYTE_SIZE_IN_MB = 1_000_000;
 export const MAX_FILE_SIZE_IN_MB = 2;
+export const MIN_VEHICLE_YEAR = 1990;

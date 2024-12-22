@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { View, StyleSheet, TouchableWithoutFeedback, Modal,  FlatList, DimensionValue } from "react-native";
 import { FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -9,25 +9,24 @@ import { colors, icons, styles as defaultStyles } from '@/constants';
 import { PickerItemModel } from "@/utils/models";
 
 import PickerItem from "@/components/lists/PickerItem";
-import Screen from "../ui/Screen";
 
-export interface PickerProps {
+export interface MultiPickerProps {
     label: string;
     items: PickerItemModel[];
-    selectedItem: PickerItemModel | null;
+    selectedItems: PickerItemModel[];
     placeholder: string;
     PickerItemComponent?: React.ElementType;
     onSelectItem: (item: PickerItemModel) => void;
     width?: DimensionValue;
 }
 
-const Picker: React.FC<PickerProps> = ({
+const MultiPicker: React.FC<MultiPickerProps> = ({
   items,
   label,
   onSelectItem,
   PickerItemComponent = PickerItem,
   placeholder,
-  selectedItem,
+  selectedItems,
   width = "100%",
 }) => {
   const [isVisible, setVisible] = useState(false);
@@ -46,6 +45,10 @@ const Picker: React.FC<PickerProps> = ({
     }
   }, []);
 
+  const itemsLabel = useMemo(() => {
+    return selectedItems.map((item) => item.label).join(', ');
+  }, [selectedItems]);
+
   useEffect(() => {
     if (isVisible) handleOpenSheet();
     else handleCloseSheet();
@@ -58,8 +61,8 @@ const Picker: React.FC<PickerProps> = ({
       
         <TouchableWithoutFeedback onPress={() => setVisible(true)}>
           <View style={[styles.container, { width }]}>
-            {selectedItem ? (
-              <Text style={styles.text}>{selectedItem.label}</Text>
+            {itemsLabel ? (
+              <Text numberOfLines={1} style={styles.text}>{itemsLabel}</Text>
             ) : (
               <Text style={styles.placeholder}>{placeholder}</Text>
             )}
@@ -87,13 +90,11 @@ const Picker: React.FC<PickerProps> = ({
                     <BottomSheetScrollView style={styles.content}>
                       {items.map((item) => (
                         <PickerItemComponent
-                          isActive={item.value === selectedItem?.value}
+                          isActive={selectedItems.includes(item)}
                           item={item}
                           key={item.value}
                           label={item.label}
-                          onPress={() => {
-                            onSelectItem(item);
-                          }}
+                          onPress={() => onSelectItem(item)}
                         />
                       ))}
                     </BottomSheetScrollView> 
@@ -172,4 +173,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Picker;
+export default MultiPicker;

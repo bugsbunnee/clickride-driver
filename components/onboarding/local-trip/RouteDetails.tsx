@@ -4,15 +4,13 @@ import { View, StyleSheet } from "react-native";
 import _ from "lodash";
 import * as yup from 'yup';
 
-import { Form, FormField, FormUpload, SubmitButton } from '@/components/forms';
+import { Form, FormField, FormMultiPicker, SubmitButton } from '@/components/forms';
 import { Text } from "@/components/ui";
 import { colors, styles as defaultStyles } from '@/constants'
 
 interface FormValues {
-    firstName: string;
-    lastName: string;
-    companyName: string;
-    companyLogo: string[];
+    routes: string[];
+    price: number;
 }
 
 interface Props {
@@ -20,19 +18,15 @@ interface Props {
 }
 
 const schema = yup.object<FormValues>().shape({
-    firstName: yup.string().min(3).required().label('First Name'),
-    lastName: yup.string().min(3).required().label('Last Name'),
-    companyName: yup.string().min(3).required().label('Company Name'),
-    companyLogo: yup.array().length(1, 'Please select exactly one image').required().label('Company Logo'),
+    routes: yup.array().min(1, 'Please enter at least one route').required().label('Routes'),
+    price: yup.number().positive().required().label('Price of trip'),
 });
 
-const PersonalInformationForm: React.FC<Props> = ({ onFinishStep }) => {
+const RouteDetailsForm: React.FC<Props> = ({ onFinishStep }) => {
     const initialValues: FormValues = useMemo(() => {
         return {
-            firstName: '',
-            lastName: '',
-            companyName: '',
-            companyLogo: [],
+            routes: [],
+            price: 0,
         };
     }, []);
 
@@ -44,43 +38,27 @@ const PersonalInformationForm: React.FC<Props> = ({ onFinishStep }) => {
     return ( 
         <>
             <View style={styles.titleContainer}>
-                <Text style={styles.title}>Personal Information</Text>
-                <Text style={styles.description}>Only your first name are visible to clients during bookings</Text>
+                <Text style={styles.title}>Route Details</Text>
+                <Text style={styles.description}>Enter route details</Text>
             </View>
 
             <Form initialValues={initialValues} onSubmit={handleSubmit} validationSchema={schema}>
-                <FormField 
-                    icon='user' 
-                    name="firstName" 
-                    label='First name' 
-                    placeholder='Enter your first name'
-                    keyboardType='name-phone-pad'
+                <FormMultiPicker
+                    name="routes" 
+                    label='Routes' 
+                    items={[]}
+                    placeholder='Enter your routes location'
                 />
 
                 <FormField 
-                    icon='user' 
-                    name="lastName" 
-                    label='Last name' 
-                    placeholder='Enter your last name'
-                    keyboardType='name-phone-pad'
-                />
-               
-                <FormField 
-                    autoCapitalize="none" 
-                    name="companyName" 
-                    label='Company name' 
-                    placeholder='Enter your company name'
-                />
-                
-                <FormUpload
-                    label='Company logo'
-                    description="Kindly upload company logo"
-                    name="companyLogo" 
-                    supportedMimeTypes={['image/jpeg', 'image/png']}
+                    name="price" 
+                    label='Price of trip' 
+                    placeholder='Enter your Price'
+                    keyboardType='numeric'
                 />
 
                 <View style={styles.buttonContainer}>
-                    <SubmitButton label="Next" />
+                    <SubmitButton label="List Bus Stop" />
                 </View>
             </Form>
         </>
@@ -131,4 +109,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default PersonalInformationForm;
+export default RouteDetailsForm;
