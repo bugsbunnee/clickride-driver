@@ -1,10 +1,21 @@
 import { Redirect, Stack } from "expo-router";
-import { useAppSelector } from "@/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+
 import useLocation from "@/hooks/useLocation";
+import { useEffect } from "react";
+import { logout } from "@/store/auth/slice";
 
 const AppLayout = () => {
     const auth = useAppSelector((state) => state.auth);
     const location = useLocation();
+    const dispatch = useAppDispatch();
+
+    // useEffect(() => {
+    //     if (auth.account) {
+    //         dispatch(logout());
+    //     }
+    // }, [auth.account]);
+    
 
     if (!auth.account) {
         return <Redirect href='/(auth)' />

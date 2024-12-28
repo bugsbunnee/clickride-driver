@@ -14,6 +14,7 @@ interface Props extends Omit<PickerProps, 'onSelectItem' | 'selectedItem'> {
 const AppFormPicker: React.FC<Props> = ({
   items,
   name,
+  icon,
   label,
   PickerItemComponent,
   placeholder,
@@ -31,6 +32,7 @@ const AppFormPicker: React.FC<Props> = ({
       <Picker
         label={label}
         items={items}
+        icon={icon}
         onSelectItem={handleItemSelect}
         PickerItemComponent={PickerItemComponent}
         placeholder={placeholder}

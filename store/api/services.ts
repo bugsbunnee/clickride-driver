@@ -18,11 +18,18 @@ export const serviceApi = createApi({
       },
   }),
   endpoints: (builder) => ({
-    getServices: builder.query<PickerItemModel[], undefined>({
+    getServices: builder.query<PickerItemModel[], void>({
         query: () => ({ url: '/services/driver' }),
     }),
     getStates: builder.query<PickerItemModel[], void>({
       query: () => '/locations/states',
+    }),
+    getCities: builder.query<PickerItemModel[], string>({
+      query: (state: string) => ({
+        url: '/locations/cities',
+        method: 'POST',
+        body: { state },
+      })
     }),
     updateLocation: builder.mutation<LocationUpdateResponse, Coordinates>({
       query: (payload: Coordinates) => ({
@@ -34,4 +41,4 @@ export const serviceApi = createApi({
   }),
 });
 
-export const { useGetServicesQuery, useGetStatesQuery, useUpdateLocationMutation } = serviceApi
+export const { useGetServicesQuery, useGetStatesQuery, useGetCitiesQuery, useUpdateLocationMutation } = serviceApi

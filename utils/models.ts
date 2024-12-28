@@ -67,11 +67,19 @@ export interface TripDetails {
     airConditioning: boolean;
 }
 
+export interface RouteDetails {
+    routes: string[];
+    price: number;
+}
+
 export interface Profile {
-    personalInformation: CarPersonalInformation | BusPersonalInformation;
+    carPersonalInformation: CarPersonalInformation;
+    busPersonalInformation: BusPersonalInformation;
     paymentDetails: PaymentDetails;
     vehicleDocuments?: VehicleDocuments;
     tripDetails?: TripDetails;
+    routeDetails: RouteDetails;
+    profilePhotoUrl?: string;
     inspectionUrl?: string;
 }
 
@@ -89,8 +97,19 @@ export interface User {
     coords: Coordinates;
 }
 
+export interface IService {
+    name: string;
+    code: string;
+    description: string;
+    color: string;
+    image: string;
+    driver: string;
+}
+
 export interface Account {
-    service: string;
+    _id: string;
+    rating: number;
+    service: IService;
     user: User;
     profile: Profile;
 }

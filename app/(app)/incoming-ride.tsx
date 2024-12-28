@@ -14,6 +14,7 @@ import LocationSwitch from '@/components/maps/LocationSwitch';
 import { colors, icons, styles as defaultStyles } from '@/constants';
 import { Button, Image, Text } from '@/components/ui';
 import { useAppSelector } from '@/store/hooks';
+import { getUserDisplayImage } from '@/utils/lib';
 
 const IncomingRidePage = () => {
     const auth = useAppSelector((state) => state.auth);
@@ -73,7 +74,7 @@ const IncomingRidePage = () => {
                     <BottomSheetView style={[styles.verticalPadding, { paddingBottom: insets.bottom }]}>
                         <View style={[styles.horizontalMargin, styles.user]}>
                             <Image
-                                src='https://picsum.photos/seed/696/3000/2000'
+                                src={getUserDisplayImage()}
                                 style={styles.display}
                                 contentFit='cover'
                             />
@@ -86,18 +87,18 @@ const IncomingRidePage = () => {
                                         <AntDesign 
                                             key={rating} 
                                             name='star' 
-                                            color='#FFC822' 
+                                            color={auth.account!.rating > rating ? '#FFC822' : colors.light.dew} 
                                             size={14} 
                                         />
                                     ))}
 
-                                    <Text style={styles.ratingValue}>(5.0)</Text>
+                                    <Text style={styles.ratingValue}>({auth.account!.rating.toFixed(1)})</Text>
                                 </View>
                             </View>
 
                             <View style={styles.ride}>
                                 <Image
-                                    src='https://png.pngtree.com/png-clipart/20220625/ourmid/pngtree-car-sports-car-transportation-png-image_5320963.png'
+                                    src={auth.account!.service.image}
                                     style={styles.vehicle}
                                     contentFit='contain'
                                 />

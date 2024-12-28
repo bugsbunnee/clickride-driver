@@ -15,7 +15,7 @@ import { colors, icons, styles as defaultStyles } from '@/constants'
 import { Form, FormCheckBox, FormError, FormField, FormPicker, SubmitButton } from '@/components/forms';
 import { ActivityIndicator, Image, Text } from '@/components/ui';
 import { PickerItemModel } from '@/utils/models';
-import { useGetServicesQuery } from '@/store/api/services';
+import { useGetServicesQuery, useGetStatesQuery } from '@/store/api/services';
 import { useRegisterMutation } from '@/store/api/auth';
 import { FormikHelpers } from 'formik';
 import { getFieldErrorsFromError, getMessageFromError } from '@/utils/lib';
@@ -25,7 +25,7 @@ yupPassword(yup);
 interface FormValues {
     email: string;
     phoneNumber: string;
-    city: string;
+    city: PickerItemModel | null;
     service: PickerItemModel | null;
     consent: boolean;
     password: string;
@@ -47,7 +47,7 @@ const registrationSchema = yup.object<FormValues>().shape({
             return ctx.createError({ message: 'Please provide a valid phone number' });
         }
     }),
-    city: yup.string().required().label('City'),
+    city: yup.object().required().label('City'),
     service: yup.object().required().label('Service'),
     consent: yup.boolean().oneOf([true], 'Terms and conditions must be accepted').required().label('Consent'),
     password: yup.string()
@@ -64,16 +64,14 @@ const SignUpPage: React.FC = () => {
     const { top } = useSafeAreaInsets();
 
     const [register, { isLoading: isRegistering, error: registrationError }] = useRegisterMutation();
-    const { isLoading, data = [] } = useGetServicesQuery(undefined, {
-        refetchOnFocus: false,
-        refetchOnMountOrArgChange: false
-    });
+    const { isLoading: isFetchingServices, data: services = [] } = useGetServicesQuery();
+    const { isLoading: isFetchingStates, data: states = [] } = useGetStatesQuery();
 
     const initialValues: FormValues = useMemo(() => {
         return {
             email: '',
             phoneNumber: '',
-            city: '',
+            city: null,
             service: null,
             consent: false,
             password: '',
@@ -84,7 +82,7 @@ const SignUpPage: React.FC = () => {
         const payload = {
             email: user.email,
             phoneNumber: user.phoneNumber,
-            city: user.city,
+            city: user.city!.value.toString(),
             service: user.service!.value.toString(),
             password: user.password
         };
@@ -92,7 +90,7 @@ const SignUpPage: React.FC = () => {
         try {
             const result = await register(payload).unwrap();
             storage.storeSession(result); // @ts-ignore
-            router.push(result.account.service);
+            router.push(result.account.service.code);
         } catch (error) {
             const fieldErrors = getFieldErrorsFromError(error);
             if (fieldErrors) helpers.setErrors(fieldErrors);
@@ -101,7 +99,7 @@ const SignUpPage: React.FC = () => {
 
     return (
         <View style={styles.container}>
-            <ActivityIndicator visible={isLoading || isRegistering} />
+            <ActivityIndicator visible={isFetchingServices || isFetchingStates || isRegistering} />
 
             <KeyboardAwareScrollView bounces={false}>
                 <TouchableOpacity style={[styles.navigation, { top }]} onPress={() => router.back()}>
@@ -142,18 +140,20 @@ const SignUpPage: React.FC = () => {
                                 placeholder="+234 999 999 9999"
                             />
                             
-                            <FormField 
-                                icon='location-pin' 
+                            <FormPicker
+                                label='City'
                                 name="city" 
-                                label='City' 
+                                icon='location-pin' 
                                 placeholder="Lagos"
+                                items={states}
+                                width="100%"
                             />
                             
                             <FormPicker
                                 label='I am joining Click Ride as:'
                                 name="service" 
                                 placeholder="Car driver"
-                                items={data}
+                                items={services}
                                 width="100%"
                             />
                             

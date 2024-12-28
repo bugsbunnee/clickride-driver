@@ -66,6 +66,7 @@ const DocumentsForm: React.FC<Props> = ({ onPreviouStep }) => {
         for (const document in documents) {
             const file = documents[document as keyof typeof documents][0]
             
+            console.log(document, file)
             formData.append(document, {
                 name: file.name,
                 type: file.type,

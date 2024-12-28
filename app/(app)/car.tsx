@@ -35,14 +35,18 @@ const CarPage: React.FC = () => {
             [KEYS.personalInformation]: <PersonalInformationForm />,
             [KEYS.vehicleDocuments]: <DocumentsForm onPreviouStep={() => setCurrentStep(KEYS.personalInformation)} />,
             [KEYS.paymentDetails]: <PaymentDetailsForm onPreviouStep={() => setCurrentStep(KEYS.vehicleDocuments)} />,
-            [KEYS.vehicleDocuments]: <VehicleInspectionDocumentsForm />,
+            [KEYS.vehicleInspection]: <VehicleInspectionDocumentsForm />,
         }
     }, []);
     
     useEffect(() => {
         function determineNextStep() {
-            if (!account || !account.profile || !account.profile.personalInformation) {
+            if (!account || !account.profile || !account.profile.carPersonalInformation) {
                 return setCurrentStep(KEYS.personalInformation);
+            }
+
+            if (!account.profile.inspectionUrl) {
+                return setCurrentStep(KEYS.vehicleInspection);
             }
 
             if (!account.profile.vehicleDocuments) {
@@ -53,15 +57,13 @@ const CarPage: React.FC = () => {
                 return setCurrentStep(KEYS.paymentDetails);
             }
 
-            if (!account.profile.inspectionUrl) {
-                return setCurrentStep(KEYS.vehicleInspection);
-            }
-
             router.push('/location');
         }
 
         determineNextStep();
     }, [account]);
+
+    console.log('current step', currentStep)
 
     return (
         <View style={styles.container}>

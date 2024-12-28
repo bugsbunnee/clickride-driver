@@ -58,14 +58,14 @@ const AppTextInput: React.FC<AppTextInputProps> = ({
 			{label && <Text style={styles.label}>{label}</Text>}
 
 			<Animated.View style={[styles.container, { width }, containerStyle]}>
-				{icon && (
+				{icon ? (
 					<View style={styles.iconContainer}>
 						<SimpleLineIcons 
 							name={icon as any} 
 							size={icons.SIZES.SMALL} 
 							color={colors.light.gray} />
 					</View>
-				)}
+				) : null}
 
 				<TextInput
 					{...otherProps}
@@ -77,26 +77,26 @@ const AppTextInput: React.FC<AppTextInputProps> = ({
 					secureTextEntry={!isVisible}
 				/>
 
-				{otherProps.secureTextEntry && (
+				{otherProps.secureTextEntry ? (
 					<TouchableOpacity style={styles.iconContainer} onPress={() => setVisible((prev) => !prev)}>
 						<Octicons 
 							name={isVisible ? 'eye' : 'eye-closed'}
 							size={icons.SIZES.NORMAL} 
 							color={colors.light.black} />
 					</TouchableOpacity>
-				)}
+				) : null}
 				
-				{otherProps.value && showClearOption && (
+				{otherProps.value && showClearOption ? (
 					<TouchableOpacity style={styles.iconContainer} onPress={() => otherProps?.onChangeText?.('')}>
 						<Octicons 
 							name='x-circle'
 							size={icons.SIZES.SMALL} 
 							color={colors.light.black} />
 					</TouchableOpacity>
-				)}
+				) : null}
 			</Animated.View>
 
-			{tip && <Text style={styles.tip}>{tip}</Text>}
+			{tip ? <Text style={styles.tip}>{tip}</Text> : null}
 
 			<ErrorMessage isVisible={!!error} errorMessage={error} />
 		</View>

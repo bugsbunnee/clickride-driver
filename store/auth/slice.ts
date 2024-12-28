@@ -62,6 +62,10 @@ const authSlice = createSlice({
             state.token = action.payload.token;
             state.account = action.payload.account;
         })
+        .addMatcher(onboardingApi.endpoints.updateRouteDetails.matchFulfilled, (state, action) => {
+            state.token = action.payload.token;
+            state.account = action.payload.account;
+        })
         .addMatcher(onboardingApi.endpoints.updateVehicleInspection.matchFulfilled, (state, action) => {
             state.token = action.payload.token;
             state.account = action.payload.account;

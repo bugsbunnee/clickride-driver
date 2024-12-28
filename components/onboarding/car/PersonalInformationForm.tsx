@@ -59,7 +59,7 @@ const PersonalInformationForm: React.FC = () => {
     const [updatePersonalInformation, { isLoading, error }] = useUpdateCarPersonalInformationMutation();
 
     const initialValues: FormValues = useMemo(() => {
-        const personalInformation = account?.profile?.personalInformation as CarPersonalInformation;
+        const personalInformation = account?.profile?.carPersonalInformation as CarPersonalInformation;
 
         return {
             firstName: account?.user?.firstName ?? '',

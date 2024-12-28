@@ -9,15 +9,11 @@ import useLocation from "@/hooks/useLocation";
 
 import { Button, Text } from "@/components/ui";
 import { colors, icons, styles as defaultStyles } from "@/constants";
-import { useAppDispatch } from "@/store/hooks";
-import { logout } from "@/store/auth/slice";
 
 const LocationPage = () => {
     const { granted } = useLocation();
     const { width } = useWindowDimensions();
     const { top: paddingTop, bottom: paddingBottom } = useSafeAreaInsets();
-
-    const d = useAppDispatch();
 
     return ( 
         <View style={[styles.flex, { paddingTop, paddingBottom }]}>
@@ -58,8 +54,7 @@ const LocationPage = () => {
                 <Button 
                     disabled={!granted}
                     label="Continue" 
-                    onPress={() => d(logout())} 
-                    // onPress={() => router.push('/incoming-ride')} 
+                    onPress={() => router.push('/incoming-ride')} 
                 />
             </ImageBackground>
         </View>

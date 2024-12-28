@@ -137,7 +137,7 @@ const TripDetailsForm: React.FC = () => {
                         keyboardType='numeric'
                     />
 
-                    <View style={{ marginBottom: 18 }}>
+                    <View style={styles.bottomMargin}>
                         <FormCheckBox name="isRoundTrip">
                             <Text style={styles.roundTrip}>Check the box if price is round trip</Text>
                         </FormCheckBox>
@@ -215,6 +215,7 @@ const TripDetailsForm: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
+    bottomMargin: { marginBottom: 18 },
     buttonContainer: { marginTop: 14 },
     content: {
         flex: 1,

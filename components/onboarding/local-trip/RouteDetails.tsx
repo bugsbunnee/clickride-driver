@@ -4,17 +4,21 @@ import { View, StyleSheet } from "react-native";
 import _ from "lodash";
 import * as yup from 'yup';
 
-import { Form, FormField, FormMultiPicker, SubmitButton } from '@/components/forms';
-import { Text } from "@/components/ui";
+import { Form, FormError, FormField, FormMultiPicker, SubmitButton } from '@/components/forms';
+import { ActivityIndicator, Text } from "@/components/ui";
 import { colors, styles as defaultStyles } from '@/constants'
+import { useGetCitiesQuery } from "@/store/api/services";
+import { useAppSelector } from "@/store/hooks";
+import { FormikHelpers } from "formik";
+import { useUpdateRouteDetailsMutation } from "@/store/api/onboarding";
+import { getFieldErrorsFromError, getMessageFromError } from "@/utils/lib";
+import { PickerItemModel, RouteDetails } from "@/utils/models";
+
+import storage from "@/utils/storage";
 
 interface FormValues {
-    routes: string[];
+    routes: PickerItemModel[];
     price: number;
-}
-
-interface Props {
-    onFinishStep: () => void;
 }
 
 const schema = yup.object<FormValues>().shape({
@@ -22,7 +26,11 @@ const schema = yup.object<FormValues>().shape({
     price: yup.number().positive().required().label('Price of trip'),
 });
 
-const RouteDetailsForm: React.FC<Props> = ({ onFinishStep }) => {
+const RouteDetailsForm: React.FC = () => {
+    const { city } = useAppSelector((state) => state.auth.account!.user!);
+    const { data = [], isLoading } = useGetCitiesQuery(city);
+    const [updateRouteDetails, { isLoading: isUpdating, error }] = useUpdateRouteDetailsMutation();
+
     const initialValues: FormValues = useMemo(() => {
         return {
             routes: [],
@@ -30,37 +38,53 @@ const RouteDetailsForm: React.FC<Props> = ({ onFinishStep }) => {
         };
     }, []);
 
-    const handleSubmit = useCallback((personalInformation: FormValues) => {
-        console.log(personalInformation);
-        onFinishStep();
-    }, [onFinishStep]);
+    const handleSubmit = useCallback(async (routeDetails: FormValues, helpers: FormikHelpers<FormValues>) => {
+        const payload: RouteDetails = {
+            routes: routeDetails.routes.map((route) => route.value.toString()),
+            price: parseFloat(routeDetails.price.toString()),
+        };
+
+        try {
+            const response = await updateRouteDetails(payload).unwrap();
+            storage.storeSession(response);
+        } catch (error) {
+            const fieldErrors = getFieldErrorsFromError(error);
+            if (fieldErrors) helpers.setErrors(fieldErrors);
+        }
+    }, [updateRouteDetails]);
 
     return ( 
         <>
-            <View style={styles.titleContainer}>
-                <Text style={styles.title}>Route Details</Text>
-                <Text style={styles.description}>Enter route details</Text>
-            </View>
+            <ActivityIndicator visible={isLoading || isUpdating} />
 
-            <Form initialValues={initialValues} onSubmit={handleSubmit} validationSchema={schema}>
-                <FormMultiPicker
-                    name="routes" 
-                    label='Routes' 
-                    items={[]}
-                    placeholder='Enter your routes location'
-                />
-
-                <FormField 
-                    name="price" 
-                    label='Price of trip' 
-                    placeholder='Enter your Price'
-                    keyboardType='numeric'
-                />
-
-                <View style={styles.buttonContainer}>
-                    <SubmitButton label="List Bus Stop" />
+            <View style={styles.content}>
+                <View style={styles.titleContainer}>
+                    <Text style={styles.title}>Route Details</Text>
+                    <Text style={styles.description}>Enter route details</Text>
                 </View>
-            </Form>
+
+                <Form initialValues={initialValues} onSubmit={handleSubmit} validationSchema={schema}>
+                    <FormMultiPicker
+                        name="routes" 
+                        label='Routes' 
+                        items={data}
+                        placeholder='Enter your routes location'
+                    />
+
+                    <FormField 
+                        name="price" 
+                        label='Price of trip' 
+                        placeholder='Enter your Price'
+                        keyboardType='numeric'
+                    />
+
+                    <FormError error={getMessageFromError(error)} />
+
+                    <View style={styles.buttonContainer}>
+                        <SubmitButton label="List Bus Stop" />
+                    </View>
+                </Form>
+            </View>
         </>
     );
 };
@@ -68,6 +92,11 @@ const RouteDetailsForm: React.FC<Props> = ({ onFinishStep }) => {
 const styles = StyleSheet.create({
     buttonContainer: { marginTop: 14 },
     bottomMargin: { marginBottom: 16 },
+    content: {
+        flex: 1,
+        paddingHorizontal: 23,
+        paddingBottom: 20,
+    },
     description: { 
         textAlign: 'center', 
         fontSize: 10, 

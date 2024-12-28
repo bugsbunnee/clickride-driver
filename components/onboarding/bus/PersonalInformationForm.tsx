@@ -14,6 +14,7 @@ import { DocumentUpload } from "@/utils/models";
 import { useAppSelector } from "@/store/hooks";
 
 import storage from "@/utils/storage";
+import { Service } from "@/constants/app";
 
 interface FormValues {
     firstName: string;
@@ -45,7 +46,9 @@ const PersonalInformationForm: React.FC = () => {
     const handleSubmit = useCallback(async (personalInformation: FormValues, helpers: FormikHelpers<FormValues>) => {
         const payload = new FormData();
 
-        // @ts-ignore
+        payload.append('firstName', personalInformation.firstName);
+        payload.append('lastName', personalInformation.lastName);
+        payload.append('companyName', personalInformation.companyName);  // @ts-ignore
         payload.append('companyLogo', {
             name: personalInformation.companyLogo[0].name,
             type: personalInformation.companyLogo[0].type,
@@ -53,7 +56,7 @@ const PersonalInformationForm: React.FC = () => {
         });
 
         try {
-            const result = await updateBusPersonalInformation({ payload, service: account!.service }).unwrap();
+            const result = await updateBusPersonalInformation({ payload, service: Service.Bus }).unwrap();
             storage.storeSession(result);
         } catch (error) {
             const fieldErrors = getFieldErrorsFromError(error);

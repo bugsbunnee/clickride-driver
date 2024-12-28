@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { View, StyleSheet, TouchableWithoutFeedback, Modal,  FlatList, DimensionValue } from "react-native";
-import { FontAwesome } from "@expo/vector-icons";
+import { FontAwesome, SimpleLineIcons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BottomSheetModal, BottomSheetModalProvider, BottomSheetScrollView, BottomSheetView } from '@gorhom/bottom-sheet';
 
@@ -15,6 +15,7 @@ export interface PickerProps {
     items: PickerItemModel[];
     selectedItem: PickerItemModel | null;
     placeholder: string;
+    icon?: string;
     PickerItemComponent?: React.ElementType;
     onSelectItem: (item: PickerItemModel) => void;
     width?: DimensionValue;
@@ -23,6 +24,7 @@ export interface PickerProps {
 const Picker: React.FC<PickerProps> = ({
   items,
   label,
+  icon,
   onSelectItem,
   PickerItemComponent = PickerItem,
   placeholder,
@@ -63,6 +65,15 @@ const Picker: React.FC<PickerProps> = ({
       
         <TouchableWithoutFeedback onPress={() => setVisible(true)}>
           <View style={[styles.container, { width }]}>
+          {icon && (
+              <View style={styles.iconContainer}>
+                <SimpleLineIcons
+                  name={icon as any} 
+                  size={icons.SIZES.SMALL} 
+                  color={colors.light.gray} />
+              </View>
+            )}
+
             {selectedItem ? (
               <Text style={styles.text}>{selectedItem.label}</Text>
             ) : (
@@ -144,6 +155,9 @@ const styles = StyleSheet.create({
   content: { 
     paddingHorizontal: 20,
   },
+  iconContainer: {
+		marginRight: 10,
+	},
   popup: {
     borderBottomLeftRadius: 40,
     borderBottomRightRadius: 40

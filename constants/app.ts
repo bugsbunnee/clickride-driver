@@ -18,6 +18,7 @@ export const TASKS = {
 export enum Service {
   Car = 'car',
   Bus = 'bus',
+  LOCAL = 'local'
 }
 
 export const BYTE_SIZE_IN_MB = 1_000_000;

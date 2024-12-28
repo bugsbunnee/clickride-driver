@@ -38,7 +38,7 @@ const BusPage: React.FC = () => {
 
     useEffect(() => {
         function determineNextStep() {
-            if (!account || !account.profile || !account.profile.personalInformation) {
+            if (!account || !account.profile || !account.profile.busPersonalInformation) {
                 return setCurrentStep(KEYS.personalInformation);
             }
 

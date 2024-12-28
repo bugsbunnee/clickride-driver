@@ -2,10 +2,9 @@ import _ from 'lodash';
 
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { RootState } from '..'
-import { AuthResponse, PaymentDetails, CarPersonalInformation, TripDetails } from '@/utils/models';
+import { AuthResponse, PaymentDetails, CarPersonalInformation, TripDetails, RouteDetails } from '@/utils/models';
 
 export interface CarPersonalInformationPayload extends CarPersonalInformation {
-    service: string;
     firstName: string;
     lastName: string;
 }
@@ -28,9 +27,9 @@ export const onboardingApi = createApi({
   endpoints: (builder) => ({
     updateCarPersonalInformation: builder.mutation<AuthResponse, CarPersonalInformationPayload>({
       query: (payload: CarPersonalInformationPayload) => ({
-        url: '/profile/' + payload.service + '/personal-information',
+        url: '/profile/car/personal-information',
         method: 'PUT',
-        body: _.omit(payload, ['service']),
+        body: payload,
       }),
     }),
     updateBusPersonalInformation: builder.mutation<AuthResponse, BusPersonalInformationPayload>({
@@ -70,6 +69,13 @@ export const onboardingApi = createApi({
         body: payload,
       })
     }),
+    updateRouteDetails: builder.mutation<AuthResponse, RouteDetails>({
+      query: (payload) => ({
+        url: '/profile/route-details',
+        method: 'PUT',
+        body: payload,
+      })
+    }),
   }),
 });
 
@@ -80,4 +86,5 @@ export const {
   useUpdateVehicleInspectionMutation,
   useUpdateVehicleDocumentsMutation,
   useUpdateTripDetailsMutation,
+  useUpdateRouteDetailsMutation,
 } = onboardingApi;

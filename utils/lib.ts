@@ -12,6 +12,7 @@ import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { BYTE_SIZE_IN_MB, CURRENCY, MAX_FILE_SIZE_IN_MB, Service } from "@/constants/app";
 import { store } from "@/store";
 import { ApiFormError } from "./models";
+import _ from "lodash";
 
 dayjs.extend(duration);
 dayjs.extend(customParseFormat);
@@ -76,33 +77,41 @@ export const getFieldErrorsFromError = (error: unknown) => {
 };
 
 export const getMessageFromError = (error: any) => {
-    if (error && error.data && error.data.message) {
-        return error.data.message;
+    if (error) {
+        if (error.data && error.data.message) {
+            return error.data.message;
+        }
+
+        if (error.error) {
+            return error.error;
+        }
     }
 
     return '';
 };
 
 export const getNextRoute = () => {
-    const { account } = store.getState().auth;
+    const account = store.getState().auth.account;
+    if (!account) return '/(auth)';
 
-    if (!account) {
-        return '/(auth)';
-    }
-
-    if (account.service === Service.Car) {
-        if (!account.profile || !account.profile.personalInformation || !account.profile.vehicleDocuments || !account.profile.paymentDetails || !account.profile.inspectionUrl) {
-            return account.service as any;
-        }
-    }
-
-    if (account.service === Service.Bus) {
-        if (!account.profile || !account.profile.personalInformation || !account.profile.tripDetails || !account.profile.paymentDetails) {
-            return account.service as any;
-        }
-    }
+    const requiredFieldsByService = {
+        [Service.Car]: ['carPersonalInformation', 'inspectionUrl', 'vehicleDocuments', 'paymentDetails'],
+        [Service.Bus]: ['busPersonalInformation', 'tripDetails', 'paymentDetails'],
+        [Service.LOCAL]: ['profilePhotoUrl', 'routeDetails', 'paymentDetails'],
+    };
     
-    return '/location';
+    const requiredFields = _.get(requiredFieldsByService, account.service.code);
+    if (!requiredFields) return '/location';
+
+    const isProfileIncomplete = !account.profile || requiredFields.some((field: keyof typeof account.profile) => !account.profile[field]);
+    return isProfileIncomplete ? account.service.code as any : '/location';
+};
+
+export const getUserDisplayImage = () => {
+    const account = store.getState().auth.account;
+    if (!account || !account.profile) return '';
+
+    return account.profile.inspectionUrl || account.profile.profilePhotoUrl || account.profile.vehicleDocuments?.display || '';
 };
 
 export const parseTime = (time: string, format: dayjs.OptionType) => {

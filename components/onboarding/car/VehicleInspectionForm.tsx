@@ -25,6 +25,7 @@ const schema = yup.object<FormValues>().shape({
 const VehicleInspectionDocumentsForm: React.FC = () => {
     const [updateVehicleInspection, { isLoading, error }] = useUpdateVehicleInspectionMutation();
 
+    console.log('should be here')
     const initialValues: FormValues = useMemo(() => {
         return {
             inspection: [],
@@ -43,6 +44,7 @@ const VehicleInspectionDocumentsForm: React.FC = () => {
 
         try {
             const response = await updateVehicleInspection(formData).unwrap();
+            console.log('response', response)
             storage.storeSession(response);
         } catch (error) {
             const fieldErrors = getFieldErrorsFromError(error);
