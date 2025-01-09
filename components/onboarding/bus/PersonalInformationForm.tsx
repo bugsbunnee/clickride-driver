@@ -14,7 +14,6 @@ import { DocumentUpload } from "@/utils/models";
 import { useAppSelector } from "@/store/hooks";
 
 import storage from "@/utils/storage";
-import { Service } from "@/constants/app";
 
 interface FormValues {
     firstName: string;
@@ -56,7 +55,7 @@ const PersonalInformationForm: React.FC = () => {
         });
 
         try {
-            const result = await updateBusPersonalInformation({ payload, service: Service.Bus }).unwrap();
+            const result = await updateBusPersonalInformation(payload).unwrap();
             storage.storeSession(result);
         } catch (error) {
             const fieldErrors = getFieldErrorsFromError(error);

@@ -9,8 +9,7 @@ import { Form, FormError, FormField, FormUpload, SubmitButton } from '@/componen
 import { ActivityIndicator, Text } from "@/components/ui";
 import { colors, styles as defaultStyles } from '@/constants'
 import { useAppSelector } from "@/store/hooks";
-import { useUpdateBusPersonalInformationMutation } from "@/store/api/onboarding";
-import { Service } from "@/constants/app";
+import { useUpdateLocalPersonalInformationMutation } from "@/store/api/onboarding";
 import { getFieldErrorsFromError, getMessageFromError } from "@/utils/lib";
 import { DocumentUpload } from "@/utils/models";
 
@@ -30,7 +29,7 @@ const schema = yup.object<FormValues>().shape({
 
 const PersonalInformationForm: React.FC = () => {
     const { account } = useAppSelector((state) => state.auth);
-    const [updateLocalPersonalInformation, { isLoading, error }] = useUpdateBusPersonalInformationMutation();
+    const [updateLocalPersonalInformation, { isLoading, error }] = useUpdateLocalPersonalInformationMutation();
 
     const initialValues: FormValues = useMemo(() => {
         return {
@@ -52,7 +51,7 @@ const PersonalInformationForm: React.FC = () => {
         });
 
         try {
-            const result = await updateLocalPersonalInformation({ payload, service: Service.LOCAL }).unwrap();
+            const result = await updateLocalPersonalInformation(payload).unwrap();
             storage.storeSession(result);
         } catch (error) {
             const fieldErrors = getFieldErrorsFromError(error);

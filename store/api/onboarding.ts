@@ -9,11 +9,6 @@ export interface CarPersonalInformationPayload extends CarPersonalInformation {
     lastName: string;
 }
 
-export interface BusPersonalInformationPayload { 
-  payload: FormData; 
-  service: string;
-}
-
 export const onboardingApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: process.env.EXPO_PUBLIC_API_BASE_URL,
@@ -32,9 +27,16 @@ export const onboardingApi = createApi({
         body: payload,
       }),
     }),
-    updateBusPersonalInformation: builder.mutation<AuthResponse, BusPersonalInformationPayload>({
-      query: ({ payload, service }: BusPersonalInformationPayload) => ({
-        url: '/profile/' + service + '/personal-information',
+    updateBusPersonalInformation: builder.mutation<AuthResponse, FormData>({
+      query: (payload) => ({
+        url: '/profile/bus/personal-information',
+        method: 'PUT',
+        body: payload,
+      }),
+    }),
+    updateLocalPersonalInformation: builder.mutation<AuthResponse, FormData>({
+      query: (payload) => ({
+        url: '/profile/local/personal-information',
         method: 'PUT',
         body: payload,
       }),
@@ -82,6 +84,7 @@ export const onboardingApi = createApi({
 export const { 
   useUpdateCarPersonalInformationMutation, 
   useUpdateBusPersonalInformationMutation,
+  useUpdateLocalPersonalInformationMutation,
   useUpdatePaymentDetailsMutation,
   useUpdateVehicleInspectionMutation,
   useUpdateVehicleDocumentsMutation,

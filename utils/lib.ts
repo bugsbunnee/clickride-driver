@@ -116,7 +116,7 @@ export const getUserDisplayImage = () => {
 
 export const parseTime = (time: string, format: dayjs.OptionType) => {
     return dayjs(time, format);
-}
+};
 
 export const sendLocalNotification = (content: NotificationContentInput) => {
     scheduleNotificationAsync({ content, trigger: null });

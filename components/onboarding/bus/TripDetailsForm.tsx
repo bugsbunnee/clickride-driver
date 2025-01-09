@@ -10,16 +10,18 @@ import { BUS_TYPES } from "@/utils/data";
 import { colors, styles as defaultStyles } from '@/constants'
 import { Form, FormCheckBox, FormField, FormMultiCheckBox, FormMultiPicker, FormPicker, SubmitButton } from '@/components/forms';
 import { ActivityIndicator, Text } from "@/components/ui";
-import { useGetStatesQuery } from "@/store/api/services";
 import { FormikHelpers } from "formik";
 import { useUpdateTripDetailsMutation } from "@/store/api/onboarding";
 import { getFieldErrorsFromError } from "@/utils/lib";
 
 import storage from "@/utils/storage";
+import TripLocations from "./TripLocations";
 
 interface FormValues {
     origin: PickerItemModel | null;
     destination: PickerItemModel | null;
+    originCity: PickerItemModel | null;
+    destinationCity: PickerItemModel | null;
     price: number;
     isRoundTrip: boolean;
     departureDates: PickerItemModel[];
@@ -48,6 +50,8 @@ const schema = yup.object<FormValues>().shape({
             return false;
         }
     }).label('To'),
+    originCity: yup.object().required().label('From (City)'),
+    destinationCity: yup.object().required().label('To (City)'),
     price: yup.number().positive().required().label('Price'),
     isRoundTrip: yup.bool().required().label('Is Round Trip'),
     departureDates: yup.array().min(1, 'Please select at least one day').required().label('Departure Date'),
@@ -60,13 +64,14 @@ const schema = yup.object<FormValues>().shape({
 });
 
 const TripDetailsForm: React.FC = () => {
-    const { data = [], isLoading } = useGetStatesQuery();
     const [updateTripDetails, { isLoading: isUpdating }] = useUpdateTripDetailsMutation();
 
     const initialValues: FormValues = useMemo(() => {
         return {
             origin: null,
             destination: null,
+            originCity: null,
+            destinationCity: null,
             price: 0,
             isRoundTrip: false,
             departureDates: [],
@@ -83,6 +88,8 @@ const TripDetailsForm: React.FC = () => {
         const payload: TripDetails = {
             origin: tripDetails.origin!.value.toString(),
             destination: tripDetails.destination!.value.toString(),
+            originCity: tripDetails.originCity!.value.toString(),
+            destinationCity: tripDetails.destinationCity!.value.toString(),
             price: parseFloat(tripDetails.price.toString()),
             isRoundTrip: tripDetails.isRoundTrip,
             departureDates: tripDetails.departureDates.map((date) => date.value as number),
@@ -105,7 +112,7 @@ const TripDetailsForm: React.FC = () => {
 
     return ( 
         <>
-            <ActivityIndicator visible={isLoading || isUpdating} />
+            <ActivityIndicator visible={isUpdating} />
 
             <View style={styles.content}>
                 <View style={styles.titleContainer}>
@@ -114,21 +121,7 @@ const TripDetailsForm: React.FC = () => {
                 </View>
 
                 <Form initialValues={initialValues} onSubmit={handleSubmit} validationSchema={schema}>
-                    <FormPicker
-                        name="origin" 
-                        label='From' 
-                        placeholder='Lagos'
-                        items={data}
-                        width="100%"
-                    />
-                    
-                    <FormPicker
-                        name="destination" 
-                        label='To' 
-                        placeholder='Benin'
-                        items={data}
-                        width="100%"
-                    />
+                    <TripLocations />
 
                     <FormField 
                         name="price" 

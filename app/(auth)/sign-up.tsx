@@ -64,7 +64,7 @@ const SignUpPage: React.FC = () => {
     const { top } = useSafeAreaInsets();
 
     const [register, { isLoading: isRegistering, error: registrationError }] = useRegisterMutation();
-    const { isLoading: isFetchingServices, data: services = [] } = useGetServicesQuery();
+    const { isLoading: isFetchingServices, data: services = [], error, status, fulfilledTimeStamp } = useGetServicesQuery();
     const { isLoading: isFetchingStates, data: states = [] } = useGetStatesQuery();
 
     const initialValues: FormValues = useMemo(() => {
@@ -138,6 +138,7 @@ const SignUpPage: React.FC = () => {
                                 name="phoneNumber" 
                                 label='Phone' 
                                 placeholder="+234 999 999 9999"
+                                keyboardType='phone-pad'
                             />
                             
                             <FormPicker

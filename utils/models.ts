@@ -56,6 +56,8 @@ export interface BusPersonalInformation {
 export interface TripDetails {
     origin: string;
     destination: string;
+    originCity: string;
+    destinationCity: string;
     price: number;
     isRoundTrip: boolean;
     departureDates: number[];

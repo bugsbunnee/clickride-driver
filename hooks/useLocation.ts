@@ -39,8 +39,8 @@ function useLocation() {
       const backgroundPermission = await Location.requestBackgroundPermissionsAsync();
       if (!backgroundPermission.granted) return;
 
-      await Location.startLocationUpdatesAsync(TASKS.LOCATION_UPDATES, {
-        accuracy: Location.Accuracy.Balanced,
+      await Location.watchPositionAsync({ accuracy: Location.Accuracy.Balanced }, (location) => {
+        setCoords(getCoords(location.coords));
       });
     }
 

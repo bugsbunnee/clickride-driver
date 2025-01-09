@@ -33,7 +33,7 @@ export const serviceApi = createApi({
     }),
     updateLocation: builder.mutation<LocationUpdateResponse, Coordinates>({
       query: (payload: Coordinates) => ({
-        url: '/users/me/location',
+        url: '/users/driver/location',
         method: 'PATCH',
         body: payload,
       })

@@ -63,8 +63,6 @@ const CarPage: React.FC = () => {
         determineNextStep();
     }, [account]);
 
-    console.log('current step', currentStep)
-
     return (
         <View style={styles.container}>
             <KeyboardAwareScrollView>
