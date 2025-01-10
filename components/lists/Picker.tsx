@@ -151,6 +151,7 @@ const styles = StyleSheet.create({
   },
   close: {
     marginTop: 10,
+    paddingBottom: 16,
   },
   content: { 
     paddingHorizontal: 20,

@@ -34,6 +34,7 @@ function useLocation() {
     
     const fetchedLocation = await Location.getCurrentPositionAsync();
     setCoords(getCoords(fetchedLocation.coords));
+    setGranted(foregroundPermission.granted);
 
     if (process.env.NODE_ENV === 'production') {
       const backgroundPermission = await Location.requestBackgroundPermissionsAsync();
@@ -43,8 +44,6 @@ function useLocation() {
         setCoords(getCoords(location.coords));
       });
     }
-
-    setGranted(true);
   }, []);
 
   const handleLocationUpdate = useCallback(async () => {
