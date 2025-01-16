@@ -5,36 +5,41 @@ import { FormikHelpers } from "formik";
 import _ from "lodash";
 import * as yup from 'yup';
 
-import { Form, FormError, FormField, FormUpload, SubmitButton } from '@/components/forms';
+import { Form, FormError, FormField, FormPicker, FormUpload, SubmitButton } from '@/components/forms';
 import { ActivityIndicator, Text } from "@/components/ui";
 import { colors, styles as defaultStyles } from '@/constants'
 import { useAppSelector } from "@/store/hooks";
 import { useUpdateLocalPersonalInformationMutation } from "@/store/api/onboarding";
 import { getFieldErrorsFromError, getMessageFromError } from "@/utils/lib";
-import { DocumentUpload } from "@/utils/models";
+import { DocumentUpload, PickerItemModel } from "@/utils/models";
 
 import storage from "@/utils/storage";
+import { useGetLocalRideTypesQuery } from "@/store/api/services";
 
 interface FormValues {
     firstName: string;
     lastName: string;
+    localRideType: PickerItemModel | null;
     profilePhoto: DocumentUpload[];
 }
 
 const schema = yup.object<FormValues>().shape({
     firstName: yup.string().min(3).required().label('First Name'),
     lastName: yup.string().min(3).required().label('Last Name'),
+    localRideType: yup.object().required().label('Local Ride Type'),
     profilePhoto: yup.array().length(1, 'Please select exactly one image').required().label('Profile Photo'),
 });
 
 const PersonalInformationForm: React.FC = () => {
     const { account } = useAppSelector((state) => state.auth);
+    const { data = [], isLoading: isFetchingRideTypes } = useGetLocalRideTypesQuery();
     const [updateLocalPersonalInformation, { isLoading, error }] = useUpdateLocalPersonalInformationMutation();
 
     const initialValues: FormValues = useMemo(() => {
         return {
             firstName: '',
             lastName: '',
+            localRideType: null,
             profilePhoto: [],
         };
     }, []);
@@ -43,7 +48,8 @@ const PersonalInformationForm: React.FC = () => {
         const payload = new FormData();
 
         payload.append('firstName', personalInformation.firstName);
-        payload.append('lastName', personalInformation.lastName);  // @ts-ignore
+        payload.append('lastName', personalInformation.lastName);
+        payload.append('localRideType', personalInformation.localRideType!.value.toString());  // @ts-ignore
         payload.append('profilePhoto', {
             name: personalInformation.profilePhoto[0].name,
             type: personalInformation.profilePhoto[0].type,
@@ -61,7 +67,7 @@ const PersonalInformationForm: React.FC = () => {
 
     return ( 
         <>
-           <ActivityIndicator visible={isLoading} />
+           <ActivityIndicator visible={isLoading || isFetchingRideTypes} />
 
             <View style={styles.content}>
                 <View style={styles.titleContainer}>
@@ -85,7 +91,14 @@ const PersonalInformationForm: React.FC = () => {
                         placeholder='Enter your last name'
                         keyboardType='name-phone-pad'
                     />
-                
+                    
+                    <FormPicker 
+                        items={data}
+                        name="localRideType" 
+                        label="Local Ride Type" 
+                        placeholder="Select ride type"
+                        width="100%"
+                    />
                     
                     <FormUpload
                         label='Profile photo'

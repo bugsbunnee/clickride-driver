@@ -4,7 +4,7 @@ import { StyleSheet, View, TouchableOpacity, useWindowDimensions } from 'react-n
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { Link, router } from 'expo-router';
 
 import * as yup from 'yup';
 
@@ -98,6 +98,14 @@ const SignInPage: React.FC = () => {
                             <View style={styles.buttonContainer}>
                                 <SubmitButton label="Sign in" />
                             </View>
+
+                            <Link href='/sign-up' asChild>
+                                <TouchableOpacity style={styles.signinContainer}>
+                                    <Text style={styles.signinText}>
+                                        Don't have an account? <Text style={styles.sigininTextCTA}>Sign up</Text>
+                                    </Text>
+                                </TouchableOpacity>
+                            </Link>
                         </Form>
                     </View>
                 </View>
@@ -144,6 +152,9 @@ const styles = StyleSheet.create({
         zIndex: 1000,
         left: 23
     },
+    signinContainer: { marginTop: 31, marginBottom: 12 },
+    signinText: { fontFamily: defaultStyles.jakartaSemibold.fontFamily, fontSize: 14, color: colors.light.dark, textAlign: 'center' },
+    sigininTextCTA: { fontFamily: defaultStyles.jakartaSemibold.fontFamily, fontSize: 14, color: colors.light.primary },
     title: { 
         textAlign: 'center', 
         fontSize: 20, 

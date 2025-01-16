@@ -4,7 +4,7 @@ import { View, StyleSheet } from "react-native";
 import _ from "lodash";
 import * as yup from 'yup';
 
-import { Form, FormError, FormField, FormMultiPicker, SubmitButton } from '@/components/forms';
+import { Form, FormError, FormField, FormPicker, SubmitButton } from '@/components/forms';
 import { ActivityIndicator, Text } from "@/components/ui";
 import { colors, styles as defaultStyles } from '@/constants'
 import { useGetCitiesQuery } from "@/store/api/services";
@@ -12,37 +12,37 @@ import { useAppSelector } from "@/store/hooks";
 import { FormikHelpers } from "formik";
 import { useUpdateRouteDetailsMutation } from "@/store/api/onboarding";
 import { getFieldErrorsFromError, getMessageFromError } from "@/utils/lib";
-import { PickerItemModel, RouteDetails } from "@/utils/models";
+import { PickerItemModel } from "@/utils/models";
 
 import storage from "@/utils/storage";
 
 interface FormValues {
-    routes: PickerItemModel[];
+    route: PickerItemModel | null;
     price: number;
 }
 
 const schema = yup.object<FormValues>().shape({
-    routes: yup.array().min(1, 'Please enter at least one route').required().label('Routes'),
+    route: yup.object().required().label('Route'),
     price: yup.number().positive().required().label('Price of trip'),
 });
 
 const RouteDetailsForm: React.FC = () => {
-    const { city } = useAppSelector((state) => state.auth.account!.user!);
-    const { data = [], isLoading } = useGetCitiesQuery(city);
+    const { user, profile } = useAppSelector((state) => state.auth.account!);
+    const { data = [], isLoading } = useGetCitiesQuery(user!.city);
     const [updateRouteDetails, { isLoading: isUpdating, error }] = useUpdateRouteDetailsMutation();
 
     const initialValues: FormValues = useMemo(() => {
         return {
-            routes: [],
+            route: null,
             price: 0,
         };
     }, []);
 
-    const handleSubmit = useCallback(async (routeDetails: FormValues, helpers: FormikHelpers<FormValues>) => {
-        const payload: RouteDetails = {
-            routes: routeDetails.routes.map((route) => route.value.toString()),
-            price: parseFloat(routeDetails.price.toString()),
-        };
+    const handleSubmit = useCallback(async (route: FormValues, helpers: FormikHelpers<FormValues>) => {
+        const payload = {
+            route: route.route!.value!.toString(),
+            price: parseFloat(route.price.toString())
+        }
 
         try {
             const response = await updateRouteDetails(payload).unwrap();
@@ -51,7 +51,14 @@ const RouteDetailsForm: React.FC = () => {
             const fieldErrors = getFieldErrorsFromError(error);
             if (fieldErrors) helpers.setErrors(fieldErrors);
         }
-    }, [updateRouteDetails]);
+    }, []);
+
+    const routes = useMemo(() => {
+        let baseRoutes = profile.routeDetails && profile.routeDetails.length > 0 ? profile.routeDetails.map((route) => ({ label: route.route, value: route.route })) : [];
+        let routeDifference = _.differenceBy(data, baseRoutes, 'value');
+
+        return routeDifference;
+    }, [profile.routeDetails, data]);
 
     return ( 
         <>
@@ -64,11 +71,11 @@ const RouteDetailsForm: React.FC = () => {
                 </View>
 
                 <Form initialValues={initialValues} onSubmit={handleSubmit} validationSchema={schema}>
-                    <FormMultiPicker
-                        name="routes" 
-                        label='Routes' 
-                        items={data}
-                        placeholder='Enter your routes location'
+                    <FormPicker
+                        name="route" 
+                        label='Route' 
+                        items={routes}
+                        placeholder='Select a route'
                     />
 
                     <FormField 

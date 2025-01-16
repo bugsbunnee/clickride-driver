@@ -122,7 +122,7 @@ const Picker: React.FC<PickerProps> = ({
                       ))}
                     </BottomSheetScrollView> 
 
-                    <View style={[styles.close, styles.content, { paddingBottom: insets.bottom }]}>
+                    <View style={[styles.close, styles.content]}>
                         <Button label='Close' onPress={() => setVisible(false)} />
                     </View>
                 </BottomSheetModal>
@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 16,
   },
   close: {
-    marginTop: 10,
+    marginTop: 16,
     paddingBottom: 16,
   },
   content: { 

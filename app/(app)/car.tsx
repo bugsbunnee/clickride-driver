@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import _ from 'lodash';
 
-import { StyleSheet, View, TouchableOpacity, useWindowDimensions } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, useWindowDimensions, Platform } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -66,7 +66,7 @@ const CarPage: React.FC = () => {
     return (
         <View style={styles.container}>
             <KeyboardAwareScrollView>
-                <TouchableOpacity style={[styles.navigation, { top }]} onPress={() => router.back()}>
+                <TouchableOpacity style={[styles.navigation, { top: Platform.OS === 'android' ? 16 : top }]} onPress={() => router.back()}>
                     <MaterialCommunityIcons 
                         name='arrow-left' 
                         color={colors.light.primary} 

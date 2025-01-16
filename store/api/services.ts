@@ -18,6 +18,9 @@ export const serviceApi = createApi({
       },
   }),
   endpoints: (builder) => ({
+    getLocalRideTypes: builder.query<PickerItemModel[], void>({
+      query: () => ({ url: '/local-ride-types' }),
+    }),
     getServices: builder.query<PickerItemModel[], void>({
         query: () => ({ url: '/services/driver' }),
     }),
@@ -41,4 +44,4 @@ export const serviceApi = createApi({
   }),
 });
 
-export const { useGetServicesQuery, useGetStatesQuery, useGetCitiesQuery, useUpdateLocationMutation } = serviceApi
+export const { useGetLocalRideTypesQuery, useGetServicesQuery, useGetStatesQuery, useGetCitiesQuery, useUpdateLocationMutation } = serviceApi

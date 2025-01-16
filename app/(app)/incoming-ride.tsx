@@ -87,12 +87,12 @@ const IncomingRidePage = () => {
                                         <AntDesign 
                                             key={rating} 
                                             name='star' 
-                                            color={auth.account!.rating > rating ? '#FFC822' : colors.light.dew} 
+                                            color={auth.account!.user.rating > rating ? '#FFC822' : colors.light.dew} 
                                             size={14} 
                                         />
                                     ))}
 
-                                    <Text style={styles.ratingValue}>({auth.account!.rating.toFixed(1)})</Text>
+                                    <Text style={styles.ratingValue}>({auth.account!.user.rating.toFixed(1)})</Text>
                                 </View>
                             </View>
 

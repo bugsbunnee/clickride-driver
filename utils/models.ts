@@ -53,6 +53,11 @@ export interface BusPersonalInformation {
     companyLogo: string;
 }
 
+export interface LocalRidePersonalInformation {
+    profilePhotoUrl: string;
+    localRideType: string;
+}
+
 export interface TripDetails {
     origin: string;
     destination: string;
@@ -70,18 +75,18 @@ export interface TripDetails {
 }
 
 export interface RouteDetails {
-    routes: string[];
+    route: string;
     price: number;
 }
 
 export interface Profile {
     carPersonalInformation: CarPersonalInformation;
     busPersonalInformation: BusPersonalInformation;
+    localRidePersonalInformation: LocalRidePersonalInformation;
     paymentDetails: PaymentDetails;
     vehicleDocuments?: VehicleDocuments;
-    tripDetails?: TripDetails;
-    routeDetails: RouteDetails;
-    profilePhotoUrl?: string;
+    tripDetails?: TripDetails[];
+    routeDetails: RouteDetails[];
     inspectionUrl?: string;
 }
 
@@ -94,6 +99,7 @@ export interface User {
     email: string;
     phoneNumber: string;
     password: string;
+    rating: number;
     lastLogin: Date | null,
     isEmailVerified: boolean;
     coords: Coordinates;
@@ -110,7 +116,6 @@ export interface IService {
 
 export interface Account {
     _id: string;
-    rating: number;
     service: IService;
     user: User;
     profile: Profile;
