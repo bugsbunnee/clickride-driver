@@ -98,33 +98,36 @@ const Picker: React.FC<PickerProps> = ({
                   enablePanDownToClose={false} 
                   enableDynamicSizing={false} 
                   index={0} 
+                  style={styles.modal}
                   snapPoints={['75%']}
                 >
-                    <BottomSheetView style={styles.content}>
-                      <TextInput
-                        icon="magnifier"
-                        placeholder="Enter item to search"
-                        onChangeText={(text) => setQuery(text)}
-                        value={query}
-                        showClearOption
-                      />
-                    </BottomSheetView>
-
-                    <BottomSheetScrollView style={styles.content}>
-                      {filteredItems.map((item) => (
-                        <PickerItemComponent
-                          isActive={item.value === selectedItem?.value}
-                          item={item}
-                          key={item.value}
-                          label={item.label}
-                          onPress={() => onSelectItem(item)}
+                    <BottomSheetView style={[styles.modalContent, { paddingBottom: insets.bottom }]}>
+                      <BottomSheetView style={styles.content}>
+                        <TextInput
+                          icon="magnifier"
+                          placeholder="Enter item to search"
+                          onChangeText={(text) => setQuery(text)}
+                          value={query}
+                          showClearOption
                         />
-                      ))}
-                    </BottomSheetScrollView> 
+                      </BottomSheetView>
 
-                    <View style={[styles.close, styles.content]}>
-                        <Button label='Close' onPress={() => setVisible(false)} />
-                    </View>
+                      <BottomSheetScrollView style={styles.content}>
+                        {filteredItems.map((item) => (
+                          <PickerItemComponent
+                            isActive={item.value === selectedItem?.value}
+                            item={item}
+                            key={item.value}
+                            label={item.label}
+                            onPress={() => onSelectItem(item)}
+                          />
+                        ))}
+                      </BottomSheetScrollView> 
+
+                      <View style={[styles.close, styles.content]}>
+                          <Button label='Close' onPress={() => setVisible(false)} />
+                      </View>
+                    </BottomSheetView>
                 </BottomSheetModal>
             </View>
           </BottomSheetModalProvider>
@@ -164,9 +167,13 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 40
   },
   modal: {
-    backgroundColor: colors.light.modalOpaque,
-    flex: 1,
     zIndex: 100000,
+    borderTopRightRadius: 30,
+    borderTopLeftRadius: 30,
+  },
+  modalContent: {
+        backgroundColor: colors.light.white,
+        flex: 1,
   },
   separator: {
     height: 5,
