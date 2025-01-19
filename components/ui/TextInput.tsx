@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Animated, { interpolateColor, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
-import { TextInput, StyleSheet, View, TextInputProps, NativeSyntheticEvent, TextInputFocusEventData, DimensionValue, TouchableOpacity, StyleProp, ViewStyle, TextStyle } from 'react-native';
+import { TextInput, StyleSheet, View, TextInputProps, NativeSyntheticEvent, TextInputFocusEventData, DimensionValue, TouchableOpacity, StyleProp, ViewStyle } from 'react-native';
 import { Octicons, SimpleLineIcons } from '@expo/vector-icons';
 import { colors, icons, styles as defaultStyles } from '@/constants';
  
@@ -12,6 +12,7 @@ export interface AppTextInputProps extends TextInputProps {
 	icon?: string;
 	width?: DimensionValue;
 	showClearOption?: boolean;
+	containerStyle?: StyleProp<ViewStyle>;
 	label?: string;
 	error?: string;
 	tip?: string;
@@ -20,6 +21,7 @@ export interface AppTextInputProps extends TextInputProps {
 const AppTextInput: React.FC<AppTextInputProps> = ({
 	width = '100%',
 	showClearOption = false,
+	containerStyle,
 	error,
 	label,
 	icon,
@@ -31,7 +33,7 @@ const AppTextInput: React.FC<AppTextInputProps> = ({
 	const focusValue = useSharedValue<number>(0);
 	const [isVisible, setVisible] = useState(true);
 
-	const containerStyle = useAnimatedStyle(() => ({
+	const animatedStyle = useAnimatedStyle(() => ({
 		borderColor: interpolateColor(focusValue.value, [0, 1], [colors.light.dew, colors.light.primary])
 	}));
 
@@ -57,7 +59,7 @@ const AppTextInput: React.FC<AppTextInputProps> = ({
 		<View style={[styles.containerMargin, { width }]}>
 			{label && <Text style={styles.label}>{label}</Text>}
 
-			<Animated.View style={[styles.container, { width }, containerStyle]}>
+			<Animated.View style={[styles.container, { width }, animatedStyle, containerStyle]}>
 				{icon ? (
 					<View style={styles.iconContainer}>
 						<SimpleLineIcons 
@@ -69,7 +71,7 @@ const AppTextInput: React.FC<AppTextInputProps> = ({
 
 				<TextInput
 					{...otherProps}
-					style={styles.text}
+					style={[styles.text, otherProps.style]}
 					placeholderTextColor={colors.light.placeholder}
 					selectionColor={colors.light.primary}
 					onFocus={handleFocus}

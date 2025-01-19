@@ -1,10 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { View, StyleSheet, TouchableWithoutFeedback, Modal,  FlatList, DimensionValue } from "react-native";
-import { FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
+import { View, ScrollView, StyleSheet, TouchableWithoutFeedback, Modal,  FlatList, DimensionValue } from "react-native";
+import { FontAwesome, SimpleLineIcons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { BottomSheetModal, BottomSheetModalProvider, BottomSheetScrollView, BottomSheetView } from '@gorhom/bottom-sheet';
 
-import { Button, Text } from "@/components/ui";
+import { Button, Text, TextInput } from "@/components/ui";
 import { colors, icons, styles as defaultStyles } from '@/constants';
 import { PickerItemModel } from "@/utils/models";
 
@@ -30,29 +29,23 @@ const MultiPicker: React.FC<MultiPickerProps> = ({
   width = "100%",
 }) => {
   const [isVisible, setVisible] = useState(false);
-  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const [query, setQuery] = useState('');
+
   const insets = useSafeAreaInsets();
-
-  const handleOpenSheet = useCallback(() => {
-    if (bottomSheetModalRef.current) {
-        bottomSheetModalRef.current.present();
-    }
-  }, []);
-
-  const handleCloseSheet = useCallback(() => {
-    if (bottomSheetModalRef.current) {
-        bottomSheetModalRef.current.dismiss();
-    }
-  }, []);
 
   const itemsLabel = useMemo(() => {
     return selectedItems.map((item) => item.label).join(', ');
   }, [selectedItems]);
 
-  useEffect(() => {
-    if (isVisible) handleOpenSheet();
-    else handleCloseSheet();
-  }, [isVisible]);
+  const filteredItems = useMemo(() => {
+    return items.filter((item) => {
+      const valueToTraverse = item.value.toString().toLowerCase();
+      const labelToTraverse = item.label.toString().toLowerCase();
+      const queryToTraverse = query.toLowerCase();
+
+      return valueToTraverse.includes(queryToTraverse) || labelToTraverse.includes(queryToTraverse);
+    });
+  }, [query, items]);
 
   return (
     <>
@@ -77,34 +70,35 @@ const MultiPicker: React.FC<MultiPickerProps> = ({
       </View>
 
       <Modal visible={isVisible} animationType="slide" >
-          <BottomSheetModalProvider> 
-            <View style={[{ paddingTop: insets.top, paddingBottom: insets.bottom }, styles.body]}>
-                <BottomSheetModal 
-                  animateOnMount 
-                  ref={bottomSheetModalRef} 
-                  enablePanDownToClose={false} 
-                  enableDynamicSizing={false} 
-                  index={0} 
-                  snapPoints={['50%']}
-                >
-                    <BottomSheetScrollView style={styles.content}>
-                      {items.map((item) => (
-                        <PickerItemComponent
-                          isActive={selectedItems.includes(item)}
-                          item={item}
-                          key={item.value}
-                          label={item.label}
-                          onPress={() => onSelectItem(item)}
-                        />
-                      ))}
-                    </BottomSheetScrollView> 
+        <View style={[{ paddingTop: insets.top, paddingBottom: insets.bottom }, styles.body]}>
+          <View style={styles.inputContainer}>
+            <TextInput
+              icon='magnifier'
+              placeholder="Enter item to search"
+              onChangeText={(text) => setQuery(text)}
+              value={query}
+              style={styles.inputText}
+              containerStyle={styles.input}
+              showClearOption
+            />
+          </View>
 
-                    <View style={[styles.close, styles.content, { paddingBottom: insets.bottom }]}>
-                        <Button label='Close' onPress={() => setVisible(false)} />
-                    </View>
-                </BottomSheetModal>
-            </View>
-          </BottomSheetModalProvider>
+          <ScrollView bounces={false} contentContainerStyle={styles.content}>
+            {filteredItems.map((item) => (
+              <PickerItemComponent
+                isActive={selectedItems.includes(item)}
+                item={item}
+                key={item.value}
+                label={item.label}
+                onPress={() => onSelectItem(item)}
+              />
+            ))}
+          </ScrollView> 
+
+          <View style={styles.footer}>
+            <Button label='Close' onPress={() => setVisible(false)} />
+          </View>
+        </View>
       </Modal>
     </>
   );
@@ -113,7 +107,7 @@ const MultiPicker: React.FC<MultiPickerProps> = ({
 const styles = StyleSheet.create({
   body: {
     flex: 1, 
-    backgroundColor: colors.light.modalOpaque,
+    backgroundColor: colors.light.white,
   },
   container: {
     borderWidth: 1,
@@ -126,24 +120,46 @@ const styles = StyleSheet.create({
     gap: 4,
 		paddingHorizontal: 16,
   },
-  close: {
-    marginTop: 10,
+  footer: {
+    padding: 16,
+    borderTopColor: colors.light.dewDark,
+    borderTopWidth: 1,
   },
   content: { 
+    paddingVertical: 10,
     paddingHorizontal: 20,
+    backgroundColor: colors.light.white,
+  },
+  iconContainer: {
+		marginRight: 10,
+	},
+  input: { 
+    backgroundColor: colors.light.dew,
+    borderRadius: 8,
+  },
+  inputContainer: {
+    paddingHorizontal: 16,
+    borderBottomColor: colors.light.dewDark,
+    borderBottomWidth: 1,
+  },
+  inputText: {
+    fontSize: 14,
+    fontFamily: defaultStyles.urbanistSemibold.fontFamily,
+    flex: 1,
+    alignSelf: 'center'
   },
   popup: {
     borderBottomLeftRadius: 40,
     borderBottomRightRadius: 40
   },
   modal: {
-    backgroundColor: colors.light.modalOpaque,
+    borderTopRightRadius: 30,
+    borderTopLeftRadius: 30,
     flex: 1,
-    zIndex: 100000,
   },
-  separator: {
-    height: 5,
-    width: '100%'
+  modalContent: {
+      backgroundColor: colors.light.white,
+      flex: 1,
   },
   label: {
 		color: colors.light.dark,

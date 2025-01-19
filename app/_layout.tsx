@@ -4,6 +4,7 @@ import React from 'react';
 import { Slot } from 'expo-router';
 export { ErrorBoundary } from 'expo-router';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { configureReanimatedLogger, ReanimatedLogLevel } from 'react-native-reanimated';
 
 import AppProvider from '@/components/authentication/Provider';
@@ -22,7 +23,9 @@ const AppLoading: React.FC = () => {
 
   return (
     <GestureHandlerRootView>
-      <Slot />
+      <BottomSheetModalProvider> 
+        <Slot />
+      </BottomSheetModalProvider>
     </GestureHandlerRootView>
   );
 };

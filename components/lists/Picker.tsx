@@ -1,8 +1,7 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { View, StyleSheet, TouchableWithoutFeedback, Modal,  FlatList, DimensionValue } from "react-native";
+import React, { useMemo, useState } from "react";
+import { View, StyleSheet, TouchableWithoutFeedback, Modal, DimensionValue, ScrollView } from "react-native";
 import { FontAwesome, SimpleLineIcons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { BottomSheetModal, BottomSheetModalProvider, BottomSheetScrollView, BottomSheetView } from '@gorhom/bottom-sheet';
 
 import { Button, Text, TextInput } from "@/components/ui";
 import { colors, icons, styles as defaultStyles } from '@/constants';
@@ -34,29 +33,17 @@ const Picker: React.FC<PickerProps> = ({
   const [isVisible, setVisible] = useState(false);
   const [query, setQuery] = useState('');
 
-  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const insets = useSafeAreaInsets();
 
-  const handleOpenSheet = useCallback(() => {
-    if (bottomSheetModalRef.current) {
-        bottomSheetModalRef.current.present();
-    }
-  }, []);
-
-  const handleCloseSheet = useCallback(() => {
-    if (bottomSheetModalRef.current) {
-        bottomSheetModalRef.current.dismiss();
-    }
-  }, []);
-
   const filteredItems = useMemo(() => {
-    return items.filter((item) => item.value.toString().toLowerCase().includes(query.toLowerCase()));
-  }, [query, items]);
+    return items.filter((item) => {
+      const valueToTraverse = item.value.toString().toLowerCase();
+      const labelToTraverse = item.label.toString().toLowerCase();
+      const queryToTraverse = query.toLowerCase();
 
-  useEffect(() => {
-    if (isVisible) handleOpenSheet();
-    else handleCloseSheet();
-  }, [isVisible]);
+      return valueToTraverse.includes(queryToTraverse) || labelToTraverse.includes(queryToTraverse);
+    });
+  }, [query, items]);
 
   return (
     <>
@@ -65,7 +52,7 @@ const Picker: React.FC<PickerProps> = ({
       
         <TouchableWithoutFeedback onPress={() => setVisible(true)}>
           <View style={[styles.container, { width }]}>
-          {icon && (
+            {icon && (
               <View style={styles.iconContainer}>
                 <SimpleLineIcons
                   name={icon as any} 
@@ -90,47 +77,35 @@ const Picker: React.FC<PickerProps> = ({
       </View>
 
       <Modal visible={isVisible} animationType="slide" >
-          <BottomSheetModalProvider> 
-            <View style={[{ paddingTop: insets.top, paddingBottom: insets.bottom }, styles.body]}>
-                <BottomSheetModal 
-                  animateOnMount 
-                  ref={bottomSheetModalRef} 
-                  enablePanDownToClose={false} 
-                  enableDynamicSizing={false} 
-                  index={0} 
-                  style={styles.modal}
-                  snapPoints={['75%']}
-                >
-                    <BottomSheetView style={[styles.modalContent, { paddingBottom: insets.bottom }]}>
-                      <BottomSheetView style={styles.content}>
-                        <TextInput
-                          icon="magnifier"
-                          placeholder="Enter item to search"
-                          onChangeText={(text) => setQuery(text)}
-                          value={query}
-                          showClearOption
-                        />
-                      </BottomSheetView>
+        <View style={[{ paddingTop: insets.top, paddingBottom: insets.bottom }, styles.body]}>
+          <View style={styles.inputContainer}>
+            <TextInput
+              icon='magnifier'
+              placeholder="Enter item to search"
+              onChangeText={(text) => setQuery(text)}
+              value={query}
+              style={styles.inputText}
+              containerStyle={styles.input}
+              showClearOption
+            />
+          </View>
 
-                      <BottomSheetScrollView style={styles.content}>
-                        {filteredItems.map((item) => (
-                          <PickerItemComponent
-                            isActive={item.value === selectedItem?.value}
-                            item={item}
-                            key={item.value}
-                            label={item.label}
-                            onPress={() => onSelectItem(item)}
-                          />
-                        ))}
-                      </BottomSheetScrollView> 
+          <ScrollView bounces={false} contentContainerStyle={styles.content}>
+            {filteredItems.map((item) => (
+              <PickerItemComponent
+                isActive={item.value === selectedItem?.value}
+                item={item}
+                key={item.value}
+                label={item.label}
+                onPress={() => onSelectItem(item)}
+              />
+            ))}
+          </ScrollView> 
 
-                      <View style={[styles.close, styles.content]}>
-                          <Button label='Close' onPress={() => setVisible(false)} />
-                      </View>
-                    </BottomSheetView>
-                </BottomSheetModal>
-            </View>
-          </BottomSheetModalProvider>
+          <View style={styles.footer}>
+            <Button label='Close' onPress={() => setVisible(false)} />
+          </View>
+        </View>
       </Modal>
     </>
   );
@@ -139,7 +114,7 @@ const Picker: React.FC<PickerProps> = ({
 const styles = StyleSheet.create({
   body: {
     flex: 1, 
-    backgroundColor: colors.light.modalOpaque,
+    backgroundColor: colors.light.white,
   },
   container: {
     borderWidth: 1,
@@ -152,32 +127,46 @@ const styles = StyleSheet.create({
     gap: 4,
 		paddingHorizontal: 16,
   },
-  close: {
-    marginTop: 16,
-    paddingBottom: 16,
+  footer: {
+    padding: 16,
+    borderTopColor: colors.light.dewDark,
+    borderTopWidth: 1,
   },
   content: { 
+    paddingVertical: 10,
     paddingHorizontal: 20,
+    backgroundColor: colors.light.white,
   },
   iconContainer: {
 		marginRight: 10,
 	},
+  input: { 
+    backgroundColor: colors.light.dew,
+    borderRadius: 8,
+  },
+  inputContainer: {
+    paddingHorizontal: 16,
+    borderBottomColor: colors.light.dewDark,
+    borderBottomWidth: 1,
+  },
+  inputText: {
+    fontSize: 14,
+    fontFamily: defaultStyles.urbanistSemibold.fontFamily,
+    flex: 1,
+    alignSelf: 'center'
+  },
   popup: {
     borderBottomLeftRadius: 40,
     borderBottomRightRadius: 40
   },
   modal: {
-    zIndex: 100000,
     borderTopRightRadius: 30,
     borderTopLeftRadius: 30,
+    flex: 1,
   },
   modalContent: {
-        backgroundColor: colors.light.white,
-        flex: 1,
-  },
-  separator: {
-    height: 5,
-    width: '100%'
+      backgroundColor: colors.light.white,
+      flex: 1,
   },
   label: {
 		color: colors.light.dark,

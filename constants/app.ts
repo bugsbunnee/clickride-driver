@@ -1,5 +1,3 @@
-
-
 export const CURRENCY = {
   NGN: {
     CODE: 'NGN',

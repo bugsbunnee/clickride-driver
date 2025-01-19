@@ -19,9 +19,9 @@ const Picker: React.FC<Props> = ({ isActive, item, onPress }) => {
             <Text style={styles.text}>{item.label}</Text>
 
             <FontAwesome
-                name="caret-down"
-                size={icons.SIZES.NORMAL}
-                color={colors.light.dark}
+                name="th-large"
+                size={icons.SIZES.SMALL}
+              color={isActive ? colors.light.primary : colors.light.dark}
             />
         </View>
       </TouchableOpacity>
@@ -34,12 +34,11 @@ const styles = StyleSheet.create({
     borderColor: colors.light.primary,
   },
   inactive: {
-    backgroundColor: colors.light.dew,
     borderColor: colors.light.dewDark,
+    backgroundColor: colors.light.dew,
   },
   container: {
-    borderWidth: 1,
-    borderRadius: 50,
+    borderRadius: 10,
     marginBottom: 12,
     flexDirection: 'row',
     alignItems: 'center',
@@ -54,7 +53,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
 		letterSpacing: 0.25,
 		flex: 1,
-		fontFamily: defaultStyles.jakartaSemibold.fontFamily,
+		fontFamily: defaultStyles.urbanistSemibold.fontFamily,
   },
   text: {
     color: colors.light.dark,
@@ -62,7 +61,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
 		letterSpacing: 0.25,
 		flex: 1,
-		fontFamily: defaultStyles.jakartaSemibold.fontFamily,
+		fontFamily: defaultStyles.urbanistSemibold.fontFamily,
   },
 });
 

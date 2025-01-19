@@ -5,7 +5,7 @@ import { router } from 'expo-router';
 import { View,  StyleSheet, TouchableOpacity } from 'react-native';
 import { AntDesign, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { BottomSheetModal, BottomSheetModalProvider, BottomSheetView } from '@gorhom/bottom-sheet';
+import { BottomSheetModal, BottomSheetView } from '@gorhom/bottom-sheet';
 import { MapMarkerProps } from 'react-native-maps';
 
 import LocationMap from '@/components/maps/LocationMap';
@@ -35,154 +35,152 @@ const OnRidePage = () => {
     }, []);
 
     return (
-        <BottomSheetModalProvider>
-            <View style={styles.container}>
-                <View style={styles.flex}>
-                    <View style={styles.map}>
-                        <LocationMap markers={nearbyRiders} />
-                    </View>
-                
-                    <View style={[styles.header, { top: insets.top, position: 'absolute' }]}>
-                        <TouchableOpacity onPress={router.back} style={styles.navigation}>
-                            <AntDesign
-                                name="arrowleft"
-                                size={icons.SIZES.SMALL} 
-                                color={colors.light.white}
-                            />
-                        </TouchableOpacity>
-
-                        <Text style={styles.title}>On Ride</Text>
-
-                        <LocationSwitch />
-                    </View>
-
-                    <TouchableOpacity onPress={handleOpenSheet} style={[styles.navigation, styles.gps]}>
-                        <Ionicons 
-                            name='locate' 
-                            size={icons.SIZES.NORMAL} 
-                            color={colors.light.white} 
+        <View style={styles.container}>
+            <View style={styles.flex}>
+                <View style={styles.map}>
+                    <LocationMap markers={nearbyRiders} />
+                </View>
+            
+                <View style={[styles.header, { top: insets.top, position: 'absolute' }]}>
+                    <TouchableOpacity onPress={router.back} style={styles.navigation}>
+                        <AntDesign
+                            name="arrowleft"
+                            size={icons.SIZES.SMALL} 
+                            color={colors.light.white}
                         />
                     </TouchableOpacity>
+
+                    <Text style={styles.title}>On Ride</Text>
+
+                    <LocationSwitch />
                 </View>
 
-                <BottomSheetModal style={styles.curved} animateOnMount enablePanDownToClose={false} ref={bottomSheetRef} >
-                    <BottomSheetView style={styles.verticalPadding}>
-                        <View style={[styles.horizontalMargin, styles.user]}>
-                            <Image
-                                src='https://picsum.photos/seed/696/3000/2000'
-                                style={styles.display}
-                                contentFit='cover'
-                            />
-
-                            <View style={styles.flex}>
-                                <Text style={styles.name}>Joseph Ogbaji</Text>
-
-                                <View style={styles.rating}>
-                                    {[1, 2, 3, 4, 5].map((rating) => (
-                                        <AntDesign 
-                                            key={rating} 
-                                            name='star' 
-                                            color='#FFC822' 
-                                            size={14} 
-                                        />
-                                    ))}
-
-                                    <Text style={styles.ratingValue}>(5.0)</Text>
-                                </View>
-                            </View>
-
-                            <View style={styles.ride}>
-                                <Image
-                                    src='https://png.pngtree.com/png-clipart/20220625/ourmid/pngtree-car-sports-car-transportation-png-image_5320963.png'
-                                    style={styles.vehicle}
-                                    contentFit='contain'
-                                />
-                            </View>
-                        </View>
-
-                        <View style={styles.horizontalMargin}>
-                            <View style={styles.location}>
-                                <View>
-                                    <MaterialCommunityIcons 
-                                        name='map-marker-circle' 
-                                        color={colors.light.primary} 
-                                        size={icons.SIZES.NORMAL}
-                                    />
-                                </View>
-
-                                <View style={styles.locationDetails}>
-                                    <View style={styles.flex}>
-                                        <Text style={styles.locationTitle}>My Location</Text>
-                                        <Text style={styles.locationAddress}>Lekki scheme 2, Ajah</Text> 
-                                    </View>
-
-                                    <Text style={styles.locationTime}>
-                                        02:00PM
-                                    </Text>
-                                </View>
-                            </View>
-                            
-                            <View style={styles.location}>
-                                <Svg height="150" width="2" style={styles.line}>
-                                    <Line x1="0" y1="80" x2="0" y2="00" stroke="#EBEBEB" strokeWidth="2" />
-                                </Svg>
-
-                                <View>
-                                    <MaterialCommunityIcons 
-                                        name='map-marker' 
-                                        color={colors.light.primary} 
-                                        size={icons.SIZES.NORMAL}
-                                    />
-                                </View>
-
-                                <View style={[styles.locationDetails, styles.locationBorder]}>
-                                    <View style={styles.flex}>
-                                        <Text style={styles.locationTitle}>Passenger Location</Text>
-                                        <Text style={styles.locationAddress}>Ojaja Mall, Ogombo Road</Text> 
-                                    </View>
-
-                                    <Text style={styles.locationTime}>
-                                        02:30PM
-                                    </Text>
-                                </View>
-                            </View>
-                        </View>
-
-                        <View style={styles.summary}>
-                            <View style={[styles.flex, styles.summaryBorder]}>
-                                <Text style={styles.summaryTitle}>Total Price</Text>
-                                <Text style={styles.summaryValue}>{formatAmount(6000)}</Text> 
-                            </View>
-                            <View style={[styles.flex, styles.summaryBorder]}>
-                                <Text style={styles.summaryTitle}>Total Distance</Text>
-                                <Text style={styles.summaryValue}>3Km</Text> 
-                            </View>
-                            <View style={styles.flex}>
-                                <Text style={styles.summaryTitle}>Average Time</Text>
-                                <Text style={styles.summaryValue}>10M</Text> 
-                            </View>
-                        </View>
-
-                        <View style={[styles.buttons, styles.horizontalMargin]}>
-                            <View style={styles.flex}>
-                                <Button 
-                                    label='Call' 
-                                    onPress={handleSubmitRider} 
-                                />
-                            </View>
-
-                            <View style={styles.flex}>
-                                <Button 
-                                    backgroundColor={colors.light.dew}
-                                    color={colors.light.primary}
-                                    label='Message' 
-                                    onPress={handleSubmitRider} />
-                            </View>
-                        </View>
-                    </BottomSheetView>
-                </BottomSheetModal>
+                <TouchableOpacity onPress={handleOpenSheet} style={[styles.navigation, styles.gps]}>
+                    <Ionicons 
+                        name='locate' 
+                        size={icons.SIZES.NORMAL} 
+                        color={colors.light.white} 
+                    />
+                </TouchableOpacity>
             </View>
-        </BottomSheetModalProvider>
+
+            <BottomSheetModal style={styles.curved} animateOnMount enablePanDownToClose={false} ref={bottomSheetRef} >
+                <BottomSheetView style={styles.verticalPadding}>
+                    <View style={[styles.horizontalMargin, styles.user]}>
+                        <Image
+                            src='https://picsum.photos/seed/696/3000/2000'
+                            style={styles.display}
+                            contentFit='cover'
+                        />
+
+                        <View style={styles.flex}>
+                            <Text style={styles.name}>Joseph Ogbaji</Text>
+
+                            <View style={styles.rating}>
+                                {[1, 2, 3, 4, 5].map((rating) => (
+                                    <AntDesign 
+                                        key={rating} 
+                                        name='star' 
+                                        color='#FFC822' 
+                                        size={14} 
+                                    />
+                                ))}
+
+                                <Text style={styles.ratingValue}>(5.0)</Text>
+                            </View>
+                        </View>
+
+                        <View style={styles.ride}>
+                            <Image
+                                src='https://png.pngtree.com/png-clipart/20220625/ourmid/pngtree-car-sports-car-transportation-png-image_5320963.png'
+                                style={styles.vehicle}
+                                contentFit='contain'
+                            />
+                        </View>
+                    </View>
+
+                    <View style={styles.horizontalMargin}>
+                        <View style={styles.location}>
+                            <View>
+                                <MaterialCommunityIcons 
+                                    name='map-marker-circle' 
+                                    color={colors.light.primary} 
+                                    size={icons.SIZES.NORMAL}
+                                />
+                            </View>
+
+                            <View style={styles.locationDetails}>
+                                <View style={styles.flex}>
+                                    <Text style={styles.locationTitle}>My Location</Text>
+                                    <Text style={styles.locationAddress}>Lekki scheme 2, Ajah</Text> 
+                                </View>
+
+                                <Text style={styles.locationTime}>
+                                    02:00PM
+                                </Text>
+                            </View>
+                        </View>
+                        
+                        <View style={styles.location}>
+                            <Svg height="150" width="2" style={styles.line}>
+                                <Line x1="0" y1="80" x2="0" y2="00" stroke="#EBEBEB" strokeWidth="2" />
+                            </Svg>
+
+                            <View>
+                                <MaterialCommunityIcons 
+                                    name='map-marker' 
+                                    color={colors.light.primary} 
+                                    size={icons.SIZES.NORMAL}
+                                />
+                            </View>
+
+                            <View style={[styles.locationDetails, styles.locationBorder]}>
+                                <View style={styles.flex}>
+                                    <Text style={styles.locationTitle}>Passenger Location</Text>
+                                    <Text style={styles.locationAddress}>Ojaja Mall, Ogombo Road</Text> 
+                                </View>
+
+                                <Text style={styles.locationTime}>
+                                    02:30PM
+                                </Text>
+                            </View>
+                        </View>
+                    </View>
+
+                    <View style={styles.summary}>
+                        <View style={[styles.flex, styles.summaryBorder]}>
+                            <Text style={styles.summaryTitle}>Total Price</Text>
+                            <Text style={styles.summaryValue}>{formatAmount(6000)}</Text> 
+                        </View>
+                        <View style={[styles.flex, styles.summaryBorder]}>
+                            <Text style={styles.summaryTitle}>Total Distance</Text>
+                            <Text style={styles.summaryValue}>3Km</Text> 
+                        </View>
+                        <View style={styles.flex}>
+                            <Text style={styles.summaryTitle}>Average Time</Text>
+                            <Text style={styles.summaryValue}>10M</Text> 
+                        </View>
+                    </View>
+
+                    <View style={[styles.buttons, styles.horizontalMargin]}>
+                        <View style={styles.flex}>
+                            <Button 
+                                label='Call' 
+                                onPress={handleSubmitRider} 
+                            />
+                        </View>
+
+                        <View style={styles.flex}>
+                            <Button 
+                                backgroundColor={colors.light.dew}
+                                color={colors.light.primary}
+                                label='Message' 
+                                onPress={handleSubmitRider} />
+                        </View>
+                    </View>
+                </BottomSheetView>
+            </BottomSheetModal>
+        </View>
     );
 };
 
