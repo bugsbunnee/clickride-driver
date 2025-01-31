@@ -4,11 +4,10 @@ import { Urbanist_400Regular, Urbanist_500Medium, Urbanist_600SemiBold, Urbanist
 
 import { useAppDispatch } from "@/store/hooks";
 import { setSession } from "@/store/auth/slice";
+import { getUserSession, setUpDatabase } from "@/utils/database";
 
 import * as Font from "expo-font";
 import * as SplashScreen from 'expo-splash-screen';
-
-import storage from '@/utils/storage';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -19,6 +18,8 @@ const useInitializeApp = () => {
     useEffect(() => {
         const initializeApp = async () => {
             try {
+                await setUpDatabase();
+
                 await Font.loadAsync({
                     PlusJakartaSansRegular: PlusJakartaSans_400Regular,
                     PlusJakartaSansMedium: PlusJakartaSans_500Medium,
@@ -32,7 +33,7 @@ const useInitializeApp = () => {
                     UrbanistExtraBold: Urbanist_800ExtraBold,
                 });
 
-                const session = await storage.getSession();
+                const session = await getUserSession();
                 if (session) dispatch(setSession(session));
             } catch (error) {
                 console.log(error);

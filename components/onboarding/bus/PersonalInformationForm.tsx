@@ -13,7 +13,7 @@ import { getFieldErrorsFromError, getMessageFromError } from "@/utils/lib";
 import { DocumentUpload } from "@/utils/models";
 import { useAppSelector } from "@/store/hooks";
 
-import storage from "@/utils/storage";
+import { saveUserSession } from "@/utils/database";
 
 interface FormValues {
     firstName: string;
@@ -56,7 +56,7 @@ const PersonalInformationForm: React.FC = () => {
 
         try {
             const result = await updateBusPersonalInformation(payload).unwrap();
-            storage.storeSession(result);
+            await saveUserSession(result);
         } catch (error) {
             const fieldErrors = getFieldErrorsFromError(error);
             if (fieldErrors) helpers.setErrors(fieldErrors);

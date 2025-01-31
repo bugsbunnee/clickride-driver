@@ -12,13 +12,13 @@ import { CarPersonalInformation, PickerItemModel } from '@/utils/models';
 import { Form, FormCheckBox, FormError, FormField, FormPicker, SubmitButton } from '@/components/forms';
 import { ActivityIndicator, Text } from "@/components/ui";
 import { colors, styles as defaultStyles } from '@/constants'
-import { MIN_VEHICLE_YEAR } from "@/constants/app";
-import { MANUFACTURERS } from "@/utils/data";
+import { MIN_VEHICLE_YEAR, SEAT_CAPACITY } from "@/constants/app";
 import { useAppSelector } from "@/store/hooks";
 import { useUpdateCarPersonalInformationMutation } from "@/store/api/onboarding";
-import { getFieldErrorsFromError, getMessageFromError } from "@/utils/lib";
 
-import storage from "@/utils/storage";
+import { MANUFACTURERS } from "@/utils/data";
+import { getFieldErrorsFromError, getMessageFromError } from "@/utils/lib";
+import { saveUserSession } from "@/utils/database";
 
 interface FormValues {
     firstName: string;
@@ -28,6 +28,7 @@ interface FormValues {
     vehicleManufacturer: PickerItemModel | null;
     vehicleYear: PickerItemModel | null;
     vehicleColor: PickerItemModel | null;
+    numberOfSeats: PickerItemModel | null;
     vehicleLicensePlate: string;
 }
 
@@ -51,6 +52,10 @@ const schema = yup.object<FormValues>().shape({
         label: yup.string().required().label('Label'),
         value: yup.string().required().label('Value'),
     }).required().label('Vehicle Color'),
+    numberOfSeats: yup.object({
+        label: yup.string().required().label('Label'),
+        value: yup.string().required().label('Value'),
+    }).required().label('Number of Seats'),
     vehicleLicensePlate: yup.string().length(6).required().label('Vehicle License Plate')
 });
 
@@ -58,17 +63,25 @@ const PersonalInformationForm: React.FC = () => {
     const { account }= useAppSelector((state) => state.auth);
     const [updatePersonalInformation, { isLoading, error }] = useUpdateCarPersonalInformationMutation();
 
+    const createPickerItem = useCallback((item: string | number) => {
+        return {
+            label: item.toString(),
+            value: item,
+        };
+    }, []);
+
     const initialValues: FormValues = useMemo(() => {
         const personalInformation = account?.profile?.carPersonalInformation as CarPersonalInformation;
 
         return {
             firstName: account?.user?.firstName ?? '',
             lastName: account?.user?.lastName ?? '',
-            gender: null,
+            gender: personalInformation?.gender ? createPickerItem(personalInformation.gender) : null,
+            numberOfSeats: personalInformation?.numberOfSeats ? createPickerItem(personalInformation.numberOfSeats) : null,
             isVehicleOwner: personalInformation?.isVehicleOwner ?? false,
-            vehicleManufacturer: null,
-            vehicleYear: null,
-            vehicleColor: null,
+            vehicleManufacturer: personalInformation?.vehicleManufacturer ? createPickerItem(personalInformation.vehicleManufacturer) : null,
+            vehicleYear: personalInformation?.vehicleYear ? createPickerItem(personalInformation?.vehicleYear) : null,
+            vehicleColor: personalInformation?.vehicleColor ? createPickerItem(personalInformation?.vehicleColor) : null,
             vehicleLicensePlate: personalInformation?.vehicleLicensePlate ?? '',
         };
     }, [account]);
@@ -80,7 +93,8 @@ const PersonalInformationForm: React.FC = () => {
             gender: personalInformation.gender!.value.toString(),
             isVehicleOwner: personalInformation.isVehicleOwner,
             vehicleManufacturer: personalInformation.vehicleManufacturer!.value.toString(),
-            vehicleYear: personalInformation.vehicleYear!.value as number,
+            vehicleYear: +personalInformation.vehicleYear!.value,
+            numberOfSeats: +personalInformation.numberOfSeats!.value,
             vehicleColor: personalInformation.vehicleColor!.value.toString(),
             vehicleLicensePlate: personalInformation.vehicleLicensePlate,
             service: account!.service, 
@@ -88,7 +102,7 @@ const PersonalInformationForm: React.FC = () => {
 
         try {
             const response = await updatePersonalInformation(payload).unwrap();
-            storage.storeSession(response);
+            await saveUserSession(response);
         } catch (error) {
             const fieldErrors = getFieldErrorsFromError(error);
             if (fieldErrors) helpers.setErrors(fieldErrors);
@@ -167,6 +181,14 @@ const PersonalInformationForm: React.FC = () => {
                         name="vehicleYear" 
                         placeholder="Select year"
                         items={years}
+                        width="100%"
+                    />
+                   
+                    <FormPicker
+                        label="Seat Capacity"
+                        name="numberOfSeats" 
+                        placeholder="Select number of seats"
+                        items={SEAT_CAPACITY}
                         width="100%"
                     />
 

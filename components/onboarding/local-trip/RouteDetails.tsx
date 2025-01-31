@@ -11,10 +11,10 @@ import { useGetCitiesQuery } from "@/store/api/services";
 import { useAppSelector } from "@/store/hooks";
 import { FormikHelpers } from "formik";
 import { useUpdateRouteDetailsMutation } from "@/store/api/onboarding";
+
 import { getFieldErrorsFromError, getMessageFromError } from "@/utils/lib";
 import { PickerItemModel } from "@/utils/models";
-
-import storage from "@/utils/storage";
+import { saveUserSession } from "@/utils/database";
 
 interface FormValues {
     route: PickerItemModel | null;
@@ -46,7 +46,7 @@ const RouteDetailsForm: React.FC = () => {
 
         try {
             const response = await updateRouteDetails(payload).unwrap();
-            storage.storeSession(response);
+            await saveUserSession(response);
         } catch (error) {
             const fieldErrors = getFieldErrorsFromError(error);
             if (fieldErrors) helpers.setErrors(fieldErrors);

@@ -13,8 +13,7 @@ import { useUpdatePaymentDetailsMutation } from "@/store/api/onboarding";
 
 import { getFieldErrorsFromError, getMessageFromError } from "@/utils/lib";
 import { BANKS, BILLING_TYPES } from "@/utils/data";
-
-import storage from "@/utils/storage";
+import { saveUserSession } from "@/utils/database";
 
 interface FormValues {
     billingType: PickerItemModel | null;
@@ -67,7 +66,7 @@ const PaymentDetailsForm: React.FC<Props> = ({ onPreviouStep, buttonLabel = "Nex
 
        try {
             const response = await updatePaymentDetails(payload).unwrap();
-            storage.storeSession(response);
+            await saveUserSession(response);
        } catch (error) {
             const fieldErrors = getFieldErrorsFromError(error);
             if (fieldErrors) helpers.setErrors(fieldErrors);

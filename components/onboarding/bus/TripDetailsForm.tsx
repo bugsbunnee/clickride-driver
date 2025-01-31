@@ -13,8 +13,9 @@ import { ActivityIndicator, Text } from "@/components/ui";
 import { FormikHelpers } from "formik";
 import { useUpdateTripDetailsMutation } from "@/store/api/onboarding";
 import { getFieldErrorsFromError } from "@/utils/lib";
+import { SEAT_CAPACITY } from "@/constants/app";
+import { saveUserSession } from "@/utils/database";
 
-import storage from "@/utils/storage";
 import TripLocations from "./TripLocations";
 
 interface FormValues {
@@ -103,7 +104,7 @@ const TripDetailsForm: React.FC = () => {
 
         try {
             const response = await updateTripDetails(payload).unwrap();
-            storage.storeSession(response);
+            await saveUserSession(response);
         } catch (error) {
             const fieldErrors = getFieldErrorsFromError(error);
             if (fieldErrors) helpers.setErrors(fieldErrors);
@@ -192,7 +193,7 @@ const TripDetailsForm: React.FC = () => {
                         name="busCapacity" 
                         label='Bus capacity' 
                         placeholder='Select bus capacity'
-                        items={capacities}
+                        items={SEAT_CAPACITY}
                         width="100%"
                     />
 
@@ -253,11 +254,6 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
 });
-
-const capacities = _.range(1, 21).map((seat) => ({
-    label: seat.toString(),
-    value: seat
-}));
 
 const times: PickerItemModel[] = _.range(0, 24).map((time) => {
     const formattedTime = time.toFixed(2).replace('.', ':').padStart(5, '0');

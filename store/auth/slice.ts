@@ -4,8 +4,7 @@ import { AppDispatch } from "..";
 import { authApi } from "../api/auth";
 import { onboardingApi } from "../api/onboarding";
 import { Account } from "@/utils/models";
-
-import storage from "@/utils/storage";
+import { removeUserSession } from "@/utils/database";
 
 interface AuthState {
     error: string;
@@ -79,7 +78,7 @@ const authSlice = createSlice({
 
 export const logout = () => async (dispatch: AppDispatch) => {
     dispatch(setSession({ account: null, token: '' }));
-    await storage.removeSession();
+    await removeUserSession();
 };
 
 export const { setAuthenticating, setSession } = authSlice.actions;

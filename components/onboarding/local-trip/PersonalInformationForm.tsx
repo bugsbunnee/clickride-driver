@@ -10,11 +10,11 @@ import { ActivityIndicator, Text } from "@/components/ui";
 import { colors, styles as defaultStyles } from '@/constants'
 import { useAppSelector } from "@/store/hooks";
 import { useUpdateLocalPersonalInformationMutation } from "@/store/api/onboarding";
+import { useGetLocalRideTypesQuery } from "@/store/api/services";
+
 import { getFieldErrorsFromError, getMessageFromError } from "@/utils/lib";
 import { DocumentUpload, PickerItemModel } from "@/utils/models";
-
-import storage from "@/utils/storage";
-import { useGetLocalRideTypesQuery } from "@/store/api/services";
+import { saveUserSession } from "@/utils/database";
 
 interface FormValues {
     firstName: string;
@@ -58,7 +58,7 @@ const PersonalInformationForm: React.FC = () => {
 
         try {
             const result = await updateLocalPersonalInformation(payload).unwrap();
-            storage.storeSession(result);
+            await saveUserSession(result);
         } catch (error) {
             const fieldErrors = getFieldErrorsFromError(error);
             if (fieldErrors) helpers.setErrors(fieldErrors);

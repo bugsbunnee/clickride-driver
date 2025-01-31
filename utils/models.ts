@@ -42,6 +42,7 @@ export interface VehicleDocuments {
 export interface CarPersonalInformation {
     gender: string;
     isVehicleOwner: boolean;
+    numberOfSeats: number;
     vehicleManufacturer: string;
     vehicleYear: number;
     vehicleColor: string;

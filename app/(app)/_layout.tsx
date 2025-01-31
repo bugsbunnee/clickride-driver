@@ -1,9 +1,11 @@
+import React from "react";
+
 import { Redirect, Stack } from "expo-router";
 import { useAppSelector } from "@/store/hooks";
 
 import useLocation from "@/hooks/useLocation";
 
-const AppLayout = () => {
+const AppLayout: React.FC = () => {
     const auth = useAppSelector((state) => state.auth);
     const location = useLocation();
 

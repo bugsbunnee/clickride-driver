@@ -10,10 +10,10 @@ import { Form, FormError, FormUpload, SubmitButton } from '@/components/forms';
 import { ActivityIndicator, Button, Text } from "@/components/ui";
 import { colors, styles as defaultStyles } from '@/constants'
 import { useUpdateVehicleDocumentsMutation } from "@/store/api/onboarding";
+
 import { getFieldErrorsFromError, getMessageFromError } from "@/utils/lib";
 import { DocumentUpload } from "@/utils/models";
-
-import storage from "@/utils/storage";
+import { saveUserSession } from "@/utils/database";
 
 interface FormValues {
     license: DocumentUpload[];
@@ -75,7 +75,7 @@ const DocumentsForm: React.FC<Props> = ({ onPreviouStep }) => {
 
         try {
             const response = await updateVehicleDocuments(formData).unwrap();
-            storage.storeSession(response);
+            await saveUserSession(response);
         } catch (error) {
             const fieldErrors = getFieldErrorsFromError(error);
             if (fieldErrors) helpers.setErrors(fieldErrors);

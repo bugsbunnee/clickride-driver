@@ -1,3 +1,5 @@
+import _ from "lodash";
+
 export const CURRENCY = {
   NGN: {
     CODE: 'NGN',
@@ -12,6 +14,11 @@ export const DATE_FORMAT = {
 export const TASKS = {
   LOCATION_UPDATES: 'click-ride-location-updates'
 };
+
+export const SEAT_CAPACITY = _.range(1, 21).map((seat) => ({
+    label: seat.toString(),
+    value: seat
+}));
 
 export enum Service {
   Car = 'car',

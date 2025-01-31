@@ -14,7 +14,7 @@ import { ActivityIndicator, Image, Text } from '@/components/ui';
 import { useLoginMutation } from '@/store/api/auth';
 import { getFieldErrorsFromError, getMessageFromError, getNextRoute } from '@/utils/lib';
 
-import storage from '@/utils/storage';
+import { saveUserSession } from '@/utils/database';
 
 interface FormValues {
     email: string;
@@ -34,7 +34,8 @@ const SignInPage: React.FC = () => {
     const handleSubmit = useCallback(async (credentials: FormValues, helpers: FormikHelpers<FormValues>) => {
         try {
             const result = await login(credentials).unwrap();
-            storage.storeSession(result);
+            await saveUserSession(result);
+
             router.push(getNextRoute());
         } catch (error) {
             const fieldErrors = getFieldErrorsFromError(error);

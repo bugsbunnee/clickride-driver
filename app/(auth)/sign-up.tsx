@@ -9,7 +9,6 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import * as yup from 'yup';
 import yupPassword from 'yup-password';
-import storage from '@/utils/storage';
 
 import { colors, icons, styles as defaultStyles } from '@/constants'
 import { Form, FormCheckBox, FormError, FormField, FormPicker, SubmitButton } from '@/components/forms';
@@ -19,6 +18,7 @@ import { useGetServicesQuery, useGetStatesQuery } from '@/store/api/services';
 import { useRegisterMutation } from '@/store/api/auth';
 import { FormikHelpers } from 'formik';
 import { getFieldErrorsFromError, getMessageFromError } from '@/utils/lib';
+import { saveUserSession } from '@/utils/database';
 
 yupPassword(yup);
 
@@ -89,8 +89,9 @@ const SignUpPage: React.FC = () => {
 
         try {
             const result = await register(payload).unwrap();
-            storage.storeSession(result); // @ts-ignore
-            router.push(result.account.service.code);
+            await saveUserSession(result);
+
+            router.push(result.account.service.code as any);
         } catch (error) {
             const fieldErrors = getFieldErrorsFromError(error);
             if (fieldErrors) helpers.setErrors(fieldErrors);

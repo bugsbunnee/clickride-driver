@@ -8,11 +8,11 @@ import * as yup from 'yup';
 import { Form, FormError, FormUpload, SubmitButton } from '@/components/forms';
 import { ActivityIndicator, Text } from "@/components/ui";
 import { colors, styles as defaultStyles } from '@/constants'
-import { DocumentUpload } from "@/utils/models";
 import { useUpdateVehicleInspectionMutation } from "@/store/api/onboarding";
-import { getFieldErrorsFromError, getMessageFromError } from "@/utils/lib";
 
-import storage from "@/utils/storage";
+import { DocumentUpload } from "@/utils/models";
+import { getFieldErrorsFromError, getMessageFromError } from "@/utils/lib";
+import { saveUserSession } from "@/utils/database";
 
 interface FormValues {
     inspection: DocumentUpload[];
@@ -43,7 +43,7 @@ const VehicleInspectionDocumentsForm: React.FC = () => {
 
         try {
             const response = await updateVehicleInspection(formData).unwrap();
-            storage.storeSession(response);
+            await saveUserSession(response);
         } catch (error) {
             const fieldErrors = getFieldErrorsFromError(error);
             if (fieldErrors) helpers.setErrors(fieldErrors);
