@@ -18,7 +18,7 @@ import { useUpdateCarPersonalInformationMutation } from "@/store/api/onboarding"
 
 import { MANUFACTURERS } from "@/utils/data";
 import { getFieldErrorsFromError, getMessageFromError } from "@/utils/lib";
-import { saveUserSession } from "@/utils/database";
+import { updateUserSession } from "@/utils/database";
 
 interface FormValues {
     firstName: string;
@@ -102,7 +102,7 @@ const PersonalInformationForm: React.FC = () => {
 
         try {
             const response = await updatePersonalInformation(payload).unwrap();
-            await saveUserSession(response);
+            await updateUserSession(response);
         } catch (error) {
             const fieldErrors = getFieldErrorsFromError(error);
             if (fieldErrors) helpers.setErrors(fieldErrors);

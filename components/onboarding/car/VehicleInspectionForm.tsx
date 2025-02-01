@@ -12,7 +12,7 @@ import { useUpdateVehicleInspectionMutation } from "@/store/api/onboarding";
 
 import { DocumentUpload } from "@/utils/models";
 import { getFieldErrorsFromError, getMessageFromError } from "@/utils/lib";
-import { saveUserSession } from "@/utils/database";
+import { updateUserSession } from "@/utils/database";
 
 interface FormValues {
     inspection: DocumentUpload[];
@@ -43,7 +43,7 @@ const VehicleInspectionDocumentsForm: React.FC = () => {
 
         try {
             const response = await updateVehicleInspection(formData).unwrap();
-            await saveUserSession(response);
+            await updateUserSession(response);
         } catch (error) {
             const fieldErrors = getFieldErrorsFromError(error);
             if (fieldErrors) helpers.setErrors(fieldErrors);

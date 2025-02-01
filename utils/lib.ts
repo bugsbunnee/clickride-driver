@@ -97,7 +97,7 @@ export const getNextRoute = () => {
     const requiredFieldsByService = {
         [Service.Car]: ['carPersonalInformation', 'inspectionUrl', 'vehicleDocuments', 'paymentDetails'],
         [Service.Bus]: ['busPersonalInformation', 'tripDetails', 'paymentDetails'],
-        [Service.LOCAL]: ['profilePhotoUrl', 'routeDetails', 'paymentDetails'],
+        [Service.LOCAL]: ['localRidePersonalInformation', 'routeDetails', 'paymentDetails'],
     };
     
     const requiredFields = _.get(requiredFieldsByService, account.service.code);
@@ -111,7 +111,7 @@ export const getUserDisplayImage = () => {
     const account = store.getState().auth.account;
     if (!account || !account.profile) return '';
 
-    return account.profile.inspectionUrl || account.profile.profilePhotoUrl || account.profile.vehicleDocuments?.display || '';
+    return account.profile.inspectionUrl || account.profile.localRidePersonalInformation?.profilePhotoUrl || account.profile.vehicleDocuments?.display || '';
 };
 
 export const parseTime = (time: string, format: dayjs.OptionType) => {

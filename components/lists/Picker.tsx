@@ -76,40 +76,42 @@ const Picker: React.FC<PickerProps> = ({
         </TouchableWithoutFeedback>
       </View>
 
-      <Modal visible={isVisible} animationType="slide" >
-        <View style={[{ paddingTop: insets.top, paddingBottom: insets.bottom }, styles.body]}>
-          <View style={styles.inputContainer}>
-            <TextInput
-              icon='magnifier'
-              placeholder="Enter item to search"
-              onChangeText={(text) => setQuery(text)}
-              value={query}
-              style={styles.inputText}
-              containerStyle={styles.input}
-              showClearOption
-            />
-          </View>
-
-          <ScrollView bounces={false} contentContainerStyle={styles.content}>
-            {filteredItems.map((item) => (
-              <PickerItemComponent
-                isActive={item.value === selectedItem?.value}
-                item={item}
-                key={item.value}
-                label={item.label}
-                onPress={() => onSelectItem(item)}
+      <View style={styles.flex}>
+        <Modal visible={isVisible} animationType="slide">
+          <View style={[{ paddingTop: insets.top, paddingBottom: insets.bottom }, styles.body]}>
+            <View style={styles.inputContainer}>
+              <TextInput
+                icon='magnifier'
+                placeholder="Enter item to search"
+                onChangeText={(text) => setQuery(text)}
+                value={query}
+                style={styles.inputText}
+                containerStyle={styles.input}
+                showClearOption
               />
-            ))}
-          </ScrollView> 
+            </View>
 
-          <View style={styles.footer}>
-            <Button label='Close' onPress={() => setVisible(false)} />
+            <ScrollView bounces={false} contentContainerStyle={styles.content}>
+              {filteredItems.map((item) => (
+                <PickerItemComponent
+                  isActive={item.value === selectedItem?.value}
+                  item={item}
+                  key={item.value}
+                  label={item.label}
+                  onPress={() => onSelectItem(item)}
+                />
+              ))}
+            </ScrollView>
+
+            <View style={styles.footer}>
+              <Button label='Close' onPress={() => setVisible(false)} />
+            </View>
           </View>
-        </View>
-      </Modal>
+        </Modal>
+      </View>
     </>
   );
-}
+};
 
 const styles = StyleSheet.create({
   body: {
@@ -137,6 +139,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     backgroundColor: colors.light.white,
   },
+  flex: { flex: 1 },
   iconContainer: {
 		marginRight: 10,
 	},

@@ -34,7 +34,7 @@ const useInitializeApp = () => {
                 });
 
                 const session = await getUserSession();
-                if (session) dispatch(setSession(session));
+                if (session) dispatch(setSession(session.user));
             } catch (error) {
                 console.log(error);
             } finally {

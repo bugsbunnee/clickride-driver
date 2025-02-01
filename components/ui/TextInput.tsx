@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Animated, { interpolateColor, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
-import { TextInput, StyleSheet, View, TextInputProps, NativeSyntheticEvent, TextInputFocusEventData, DimensionValue, TouchableOpacity, StyleProp, ViewStyle } from 'react-native';
+import { TextInput, StyleSheet, View, TextInputProps, NativeSyntheticEvent, TextInputFocusEventData, DimensionValue, TouchableOpacity, StyleProp, ViewStyle, Keyboard } from 'react-native';
 import { Octicons, SimpleLineIcons } from '@expo/vector-icons';
 import { colors, icons, styles as defaultStyles } from '@/constants';
  
@@ -39,6 +39,7 @@ const AppTextInput: React.FC<AppTextInputProps> = ({
 
 	const handleBlur = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
 		if (onBlur) onBlur(e);
+		Keyboard.dismiss();
 
 		const timing = withTiming(0, { duration: 500 });
 		focusValue.set(timing);

@@ -14,7 +14,7 @@ import { useGetLocalRideTypesQuery } from "@/store/api/services";
 
 import { getFieldErrorsFromError, getMessageFromError } from "@/utils/lib";
 import { DocumentUpload, PickerItemModel } from "@/utils/models";
-import { saveUserSession } from "@/utils/database";
+import { updateUserSession } from "@/utils/database";
 
 interface FormValues {
     firstName: string;
@@ -58,7 +58,7 @@ const PersonalInformationForm: React.FC = () => {
 
         try {
             const result = await updateLocalPersonalInformation(payload).unwrap();
-            await saveUserSession(result);
+            await updateUserSession(result);
         } catch (error) {
             const fieldErrors = getFieldErrorsFromError(error);
             if (fieldErrors) helpers.setErrors(fieldErrors);

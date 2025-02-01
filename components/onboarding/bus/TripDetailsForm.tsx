@@ -14,7 +14,7 @@ import { FormikHelpers } from "formik";
 import { useUpdateTripDetailsMutation } from "@/store/api/onboarding";
 import { getFieldErrorsFromError } from "@/utils/lib";
 import { SEAT_CAPACITY } from "@/constants/app";
-import { saveUserSession } from "@/utils/database";
+import { updateUserSession } from "@/utils/database";
 
 import TripLocations from "./TripLocations";
 
@@ -104,7 +104,7 @@ const TripDetailsForm: React.FC = () => {
 
         try {
             const response = await updateTripDetails(payload).unwrap();
-            await saveUserSession(response);
+            await updateUserSession(response);
         } catch (error) {
             const fieldErrors = getFieldErrorsFromError(error);
             if (fieldErrors) helpers.setErrors(fieldErrors);

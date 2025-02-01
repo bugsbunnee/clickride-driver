@@ -14,7 +14,7 @@ import { useUpdateRouteDetailsMutation } from "@/store/api/onboarding";
 
 import { getFieldErrorsFromError, getMessageFromError } from "@/utils/lib";
 import { PickerItemModel } from "@/utils/models";
-import { saveUserSession } from "@/utils/database";
+import { updateUserSession } from "@/utils/database";
 
 interface FormValues {
     route: PickerItemModel | null;
@@ -46,7 +46,7 @@ const RouteDetailsForm: React.FC = () => {
 
         try {
             const response = await updateRouteDetails(payload).unwrap();
-            await saveUserSession(response);
+            await updateUserSession(response);
         } catch (error) {
             const fieldErrors = getFieldErrorsFromError(error);
             if (fieldErrors) helpers.setErrors(fieldErrors);
