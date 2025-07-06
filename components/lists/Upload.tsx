@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useRef } from 'react';
-import { View, StyleSheet, TouchableWithoutFeedback, Alert, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useCallback, useRef } from 'react';
+import { View, StyleSheet, Alert, ScrollView, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import * as ImagePicker from 'expo-image-picker';
@@ -22,10 +22,6 @@ export interface UploadProps {
 const Upload: React.FC<UploadProps> = ({ description, label, imageUris, supportedMimeTypes = ['image/jpeg', 'image/png'], onAddImage, onRemoveImage }) => {
     const scrollView = useRef<ScrollView>(null);
 
-    useEffect(() => {
-        requestPermission();
-    }, []);
-
     const formatMimeTypes = useCallback(() => {
         if (supportedMimeTypes) {
             return supportedMimeTypes.map((mimeType) => "." + mimeType.split('/')[1]).join(', ');
@@ -33,11 +29,6 @@ const Upload: React.FC<UploadProps> = ({ description, label, imageUris, supporte
 
         return null;
     }, [supportedMimeTypes]);
-
-    const requestPermission = async () => {
-        const { granted }= await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (!granted) alert("You need to enable permission to access the library.");
-    };
 
     const addImage = async () => {
         try {

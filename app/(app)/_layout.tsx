@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect } from "react";
+import * as ImagePicker from 'expo-image-picker';
 
 import { Redirect, Stack } from "expo-router";
 import { useAppSelector } from "@/store/hooks";
@@ -8,6 +9,15 @@ import useLocation from "@/hooks/useLocation";
 const AppLayout: React.FC = () => {
     const auth = useAppSelector((state) => state.auth);
     const location = useLocation();
+
+    const requestPermission = async () => {
+        const { granted }= await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (!granted) alert("You need to enable permission to access the library.");
+    };
+
+    useEffect(() => {
+        requestPermission();
+    }, []);
 
     if (!auth.account) {
         return <Redirect href='/(auth)' />
