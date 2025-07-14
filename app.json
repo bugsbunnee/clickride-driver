@@ -1,82 +1,83 @@
 {
-  "expo": {
-    "name": "clickride-driver",
-    "slug": "clickride-driver",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
-    "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
-    "ios": {
-      "supportsTablet": true,
-      "infoPlist": {
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "Fetching your background location for accurate grofencing",
-        "NSLocationWhenInUseUsageDescription": "Necessary for map functionality"
-      }
-    },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      },
-      "permissions": [
-        "android.permission.ACCESS_COARSE_LOCATION",
-        "android.permission.ACCESS_FINE_LOCATION",
-        "android.permission.RECORD_AUDIO"
-      ],
-      "package": "com.bugsbunnee.clickridedriver"
-    },
-    "web": {
-      "bundler": "metro",
-      "output": "static",
-      "favicon": "./assets/images/favicon.png"
-    },
-    "plugins": [
-      "expo-router",
-      [
-        "expo-splash-screen",
-        {
-          "image": "./assets/images/splash.png",
-          "imageWidth": 200,
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
-        }
-      ],
-      [
-        "expo-location",
-        {
-          "locationAlwaysPermission": "We use your location to see how far you are from spots, and also to show you your position in the map",
-          "locationAlwaysAndWhenInUsePermission": "We check your location in background to alert you while traveling. We will never send this information to our servers",
-          "locationWhenInUsePermission": "We use your location to see how far you are from spots, and also to show you your position in the map",
-          "isIosBackgroundLocationEnabled": true
-        }
-      ],
-      "expo-secure-store",
-      [
-        "expo-image-picker",
-        {
-          "photosPermission": "The app accesses your photos to let you share them with your friends."
-        }
-      ],
-      "expo-sqlite"
-    ],
-    "experiments": {
-      "typedRoutes": true
-    },
-    "extra": {
-      "router": {
-        "origin": false
-      },
-      "eas": {
-        "projectId": "64e23e4c-03d1-4099-9b15-d6bdfcf106a0"
-      }
-    },
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
-    "updates": {
-      "url": "https://u.expo.dev/64e23e4c-03d1-4099-9b15-d6bdfcf106a0"
-    }
-  }
+	"expo": {
+		"name": "clickride-driver",
+		"slug": "clickride-driver",
+		"version": "1.0.0",
+		"orientation": "portrait",
+		"icon": "./assets/images/icon.png",
+		"scheme": "myapp",
+		"userInterfaceStyle": "automatic",
+		"newArchEnabled": true,
+		"ios": {
+			"supportsTablet": true,
+			"infoPlist": {
+				"NSLocationAlwaysAndWhenInUseUsageDescription": "Fetching your background location for accurate grofencing",
+				"NSLocationWhenInUseUsageDescription": "Necessary for map functionality"
+			}
+		},
+		"android": {
+			"adaptiveIcon": {
+				"foregroundImage": "./assets/images/adaptive-icon.png",
+				"backgroundColor": "#ffffff"
+			},
+			"permissions": [
+				"android.permission.ACCESS_COARSE_LOCATION",
+				"android.permission.ACCESS_FINE_LOCATION",
+				"android.permission.RECORD_AUDIO"
+			],
+			"package": "com.bugsbunnee.clickridedriver"
+		},
+		"web": {
+			"bundler": "metro",
+			"output": "static",
+			"favicon": "./assets/images/favicon.png"
+		},
+		"plugins": [
+			"expo-router",
+			[
+				"expo-splash-screen",
+				{
+					"image": "./assets/images/splash.png",
+					"imageWidth": 200,
+					"resizeMode": "contain",
+					"backgroundColor": "#ffffff"
+				}
+			],
+			[
+				"expo-location",
+				{
+					"locationAlwaysPermission": "We use your location to see how far you are from spots, and also to show you your position in the map",
+					"locationAlwaysAndWhenInUsePermission": "We check your location in background to alert you while traveling. We will never send this information to our servers",
+					"locationWhenInUsePermission": "We use your location to see how far you are from spots, and also to show you your position in the map",
+					"isIosBackgroundLocationEnabled": true
+				}
+			],
+			"expo-secure-store",
+			[
+				"expo-image-picker",
+				{
+					"photosPermission": "The app accesses your photos to let you share them with your friends."
+				}
+			],
+			"expo-sqlite"
+		],
+		"experiments": {
+			"typedRoutes": true,
+			"reactCanary": true
+		},
+		"extra": {
+			"router": {
+				"origin": false
+			},
+			"eas": {
+				"projectId": "64e23e4c-03d1-4099-9b15-d6bdfcf106a0"
+			}
+		},
+		"runtimeVersion": {
+			"policy": "appVersion"
+		},
+		"updates": {
+			"url": "https://u.expo.dev/64e23e4c-03d1-4099-9b15-d6bdfcf106a0"
+		}
+	}
 }
